@@ -12,7 +12,7 @@ class Fighter:
 		self.hp -= amount
 		if self.hp > self.max_hp:
 			self.hp = self.max_hp
-		elif self.hp < 0:
+		elif self.hp <= 0:
 			self.hp = 0
 			results.append({'dead': self.owner})
 		
