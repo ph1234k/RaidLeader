@@ -5,7 +5,7 @@ from entity import Entity
 from components.ai import BasicMonster
 from components.fighter import Fighter
 from components.item import Item
-from components.item_functions import heal
+from components.item_functions import heal, cast_lightning
 from map_objects.tile import Tile
 from map_objects.rectangle import Rect
 from render_functions import RenderOrder
@@ -89,9 +89,16 @@ class GameMap:
 		for i in range(number_of_items):
 			x = randint(room.x1 + 1, room.x2 - 1)
 			y = randint(room.y1 + 1, room.y2 - 1)
+			# TODO: Allow items to spawn on each other. (add: and not entity.item)
+			# TDOD: Will be annoying to test though. Might bump up max items when doing so
 			if not any([entity for entity in entities if entity.x == x and entity.y == y]):
-				item = Entity(x, y, '!', libtcod.violet, "Healing Potion", render_order=RenderOrder.ITEM,
-					item=Item(use_function=heal, amount=5))
+				d100 = randint(0, 100)
+				if d100 < 75:
+					item = Entity(x, y, '6', libtcod.violet, "Healing Potion", render_order=RenderOrder.ITEM,
+						item=Item(use_function=heal, amount=5))
+				else:
+					item = Entity(x, y, '!', libtcod.yellow, "Lightning Scroll", render_order=RenderOrder.ITEM,
+						item=Item(use_function=cast_lightning, damage=20, maximum_range=5))
 				entities.append(item)
 
 	def is_blocked(self, x, y):
