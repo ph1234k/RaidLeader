@@ -14,3 +14,4 @@ def heal(*args, **kwargs):
 		results.append({'consumed': True, 'message':Message('Your wounds start to feel better!', libtcod.green)})
 
 	return results
+
