@@ -8,4 +8,18 @@
 
 ## Compatability notes
 
-Developed in Python 3.7.4
+Developed in Python 3.7.
+Requires tcod (libtcod) as dependency.
+May add in Numpy in the future -  currently not depend.
+
+## Play/Testing notes
+To play, ensure you have a compatible version of python installed.
+Make sure to install libtcod as well.
+
+Then run `py engine.py` to start. 
+
+You can use the arrow keys or VIM keys to move around. 
+"i" for inventory
+"d" for dropping an item
+"g" for picking up an item
+To use an item, open the inventory and then press the appropraite key that represents the item you wish to use. 

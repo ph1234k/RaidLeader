@@ -5,10 +5,11 @@ from entity import Entity
 from components.ai import BasicMonster
 from components.fighter import Fighter
 from components.item import Item
-from components.item_functions import heal, cast_lightning
+from components.item_functions import heal, cast_lightning, cast_fireball
 from map_objects.tile import Tile
 from map_objects.rectangle import Rect
 from render_functions import RenderOrder
+from game_messages import Message
 
 class GameMap:
 	def __init__(self, width, height):
@@ -79,12 +80,15 @@ class GameMap:
 			y = randint(room.y1 + 1, room.y2 - 1)
 			if not any([entity for entity in entities if entity.x == x and entity.y == y]):
 				d100 = randint(0, 100)
-				if d100 < 80:
+				if d100 < 70:
 					monster = Entity(x, y, 'Z', libtcod.darker_green, "Zombie", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
 						fighter=Fighter(hp=12, power=3, defense=1))
-				else:
+				elif d100 < 95:
 					monster = Entity(x, y, 'z', libtcod.black, "Rotting Zombie", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
 						fighter=Fighter(hp=8, power=6, defense=0))
+				else:
+					monster = Entity(x, y, 'P', libtcod.pink, "Pocoyo", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
+						fighter=Fighter(hp=50, power=7, defense=0))
 				entities.append(monster)
 		for i in range(number_of_items):
 			x = randint(room.x1 + 1, room.x2 - 1)
@@ -93,11 +97,15 @@ class GameMap:
 			# TDOD: Will be annoying to test though. Might bump up max items when doing so
 			if not any([entity for entity in entities if entity.x == x and entity.y == y]):
 				d100 = randint(0, 100)
-				if d100 < 75:
-					item = Entity(x, y, '6', libtcod.violet, "Healing Potion", render_order=RenderOrder.ITEM,
+				if d100 < 70:
+					item = Entity(x, y, '!', libtcod.violet, "Healing Potion", render_order=RenderOrder.ITEM,
 						item=Item(use_function=heal, amount=5))
+				elif d100 < 85:
+					item = Entity(x, y, "?", libtcod.red, "Fireball Scroll", render_order=RenderOrder.ITEM,
+						item=Item(use_function=cast_fireball, targeting=True, damage=12, radius=3,
+							targeting_message=Message('Left click target tile to cast, or right click to cancel', libtcod.light_cyan)))
 				else:
-					item = Entity(x, y, '!', libtcod.yellow, "Lightning Scroll", render_order=RenderOrder.ITEM,
+					item = Entity(x, y, '?', libtcod.yellow, "Lightning Scroll", render_order=RenderOrder.ITEM,
 						item=Item(use_function=cast_lightning, damage=20, maximum_range=5))
 				entities.append(item)
 

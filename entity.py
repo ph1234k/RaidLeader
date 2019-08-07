@@ -42,7 +42,8 @@ class Entity:
 
 		if not (game_map.is_blocked(self.x+dx, self.y+dy) or get_blocking_entities_at_location(entities, self.x+dx, self.y+dy)):
 			self.move(dx, dy)
-
+	def distance(self, x, y):
+		return math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
 	def distance_to(self, other):
 		dx = self.x - other.x
 		dy = self.y - other.y

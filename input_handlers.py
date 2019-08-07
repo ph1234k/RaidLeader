@@ -8,6 +8,8 @@ def handle_keys(key, game_state):
         return handle_keys_player_dead(key)
     elif game_state in (GameState.SHOW_INVENTORY, GameState.DROP_INVENTORY):
         return handle_keys_show_inventory(key)
+    elif game_state == GameState.TARGETING:
+        return handle_keys_targeting(key)
     return {}
 
 def handle_keys_player_turn(key):
@@ -36,6 +38,8 @@ def handle_keys_player_turn(key):
         return {'show_inventory': True}
     elif key_char == 'd':
         return {'drop_inventory': True}
+    elif key_char == '.':
+        return {'wait': True}
 
     if key.vk == libtcod.KEY_ENTER and key.lalt:
         # Alt+Enter: toggle full screen
@@ -78,3 +82,17 @@ def handle_keys_show_inventory(key):
         return {'exit': True}
     return {}
 
+def handle_keys_targeting(key):
+    if key.vk == libtcod.KEY_ESCAPE:
+        return {'exit': True}
+    return {}
+
+def handle_mouse(mouse):
+    (x, y) = (mouse.cx, mouse.cy)
+
+    if mouse.lbutton_pressed:
+        return {'left_click': (x, y)}
+    elif mouse.rbutton_pressed:
+        return {'right_click': (x, y)}
+
+    return {}
