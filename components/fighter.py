@@ -1,4 +1,5 @@
 import tcod as libtcod
+from random import randint
 from game_messages import Message
 
 class Fighter:
@@ -23,7 +24,7 @@ class Fighter:
 
 	def attack(self, target):
 		results = []
-		damage = self.power - target.fighter.defense
+		damage = randint(0, self.power) - randint(0, target.fighter.defense)
 		if damage > 0:
 			results.append({'message': Message('{0} hits {1} for {2} damage!'.format(self.owner.name.capitalize(), target.name, str(damage)), libtcod.white)})
 			results.extend(target.fighter.take_damage(damage))
