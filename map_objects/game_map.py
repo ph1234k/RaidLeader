@@ -82,13 +82,13 @@ class GameMap:
 				d100 = randint(0, 100)
 				if d100 < 70:
 					monster = Entity(x, y, 'Z', libtcod.darker_green, "Zombie", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
-						fighter=Fighter(hp=12, power=3, defense=1))
+						fighter=Fighter(hp=12, num_die=1, type_die=3, mod_die=1, defense=1))
 				elif d100 < 95:
 					monster = Entity(x, y, 'z', libtcod.black, "Rotting Zombie", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
-						fighter=Fighter(hp=8, power=6, defense=0))
+						fighter=Fighter(hp=8, num_die=1, type_die=6, mod_die=1, defense=0))
 				else:
 					monster = Entity(x, y, 'P', libtcod.pink, "Pocoyo", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
-						fighter=Fighter(hp=50, power=7, defense=0))
+						fighter=Fighter(hp=50, num_die=1, type_die=6, mod_die=1, defense=0))
 				entities.append(monster)
 		for i in range(number_of_items):
 			x = randint(room.x1 + 1, room.x2 - 1)

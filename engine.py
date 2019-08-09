@@ -43,7 +43,7 @@ def main():
 	}
 
 	player = Entity(0, 0, '@', libtcod.pink, "Player", blocks=True, render_order=RenderOrder.ACTOR, 
-		fighter=Fighter(hp=30, power=5, defense=2), inventory=Inventory(52))
+		fighter=Fighter(hp=30, num_die=2, type_die=4, mod_die=2, defense=2), inventory=Inventory(52))
 	entities = [player]
 
 	libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
