@@ -33,7 +33,7 @@ def main():
 	fov_radius = 10
 
 	max_monsters_per_room = 3
-	max_items_per_room = 2
+	max_items_per_room = 12
 
 	colors = {
 		'dark_wall': libtcod.Color(80, 80, 80),

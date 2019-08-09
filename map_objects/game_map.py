@@ -5,7 +5,7 @@ from entity import Entity
 from components.ai import BasicMonster
 from components.fighter import Fighter
 from components.item import Item
-from components.item_functions import heal, cast_lightning, cast_fireball
+from components.item_functions import heal, cast_lightning, cast_fireball, cast_confuse
 from map_objects.tile import Tile
 from map_objects.rectangle import Rect
 from render_functions import RenderOrder
@@ -100,13 +100,17 @@ class GameMap:
 				if d100 < 70:
 					item = Entity(x, y, '!', libtcod.violet, "Healing Potion", render_order=RenderOrder.ITEM,
 						item=Item(use_function=heal, amount=5))
-				elif d100 < 85:
+				elif d100 < 80:
 					item = Entity(x, y, "?", libtcod.red, "Fireball Scroll", render_order=RenderOrder.ITEM,
 						item=Item(use_function=cast_fireball, targeting=True, damage=12, radius=3,
 							targeting_message=Message('Left click target tile to cast, or right click to cancel', libtcod.light_cyan)))
-				else:
+				elif d100 < 90:
 					item = Entity(x, y, '?', libtcod.yellow, "Lightning Scroll", render_order=RenderOrder.ITEM,
 						item=Item(use_function=cast_lightning, damage=20, maximum_range=5))
+				else:
+					item = Entity(x, y, '?', libtcod.light_pink, 'Confusion Scroll', render_order=RenderOrder.ITEM,
+								  item=Item(use_function=cast_confuse, targeting=True, targeting_message=Message(
+						'Left-click an enemy to confuse it, or right-click to cancel.', libtcod.light_cyan)))
 				entities.append(item)
 
 	def is_blocked(self, x, y):

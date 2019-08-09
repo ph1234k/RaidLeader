@@ -1,4 +1,6 @@
 import tcod as libtcod
+from random import randint
+from game_messages import Message
 
 class BasicMonster:
 	def take_turn(self, target, fov_map, game_map, entities):
@@ -10,5 +12,30 @@ class BasicMonster:
 				monster.move_astar(target, entities, game_map)
 			elif target.fighter.hp > 0:
 				results.extend(monster.fighter.attack(target))
+
+		return results
+
+class ConfusedMonster:
+	"""docstring for ConfusedMonster"""
+	def __init__(self, previous_ai, num_turns=10):
+		self.previous_ai = previous_ai
+		self.num_turns = num_turns
+		
+	def take_turn(self, target, fov_map, game_map, entities):
+		results = []
+
+		if self.num_turns > 0:
+			if randint(0, 3) == 3:
+				self.owner.ai = self.previous_ai
+				results.append({'message': Message('The {0} is no longer cofused.'.format(self.owner.name), libtcod.red)})
+			else:
+				random_x = self.owner.x + randint(0, 2) - 1
+				random_y = self.owner.y + randint(0, 2) - 1
+				if random_x != self.owner.x or random_y != self.owner.y:
+					self.owner.move_towards(random_x, random_y, game_map, entities)
+				self.num_turns -= 1
+		else:
+			self.owner.ai = previous_ai
+			results.append({'message': Message('The {0} is no longer cofused.'.format(self.owner.name), libtcod.red)})
 
 		return results
