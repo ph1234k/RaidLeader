@@ -9,7 +9,7 @@ class RenderOrder(Enum):
 	ACTOR = 3
 
 def get_names_under_mouse(mouse, entities, fov_map):
-	(x, y) = (mouse.cx, mouse.cy)
+	(x, y) = (mouse.cx, mouse.cy-8)
 	names = [entity.name for entity in entities if entity.x == x and entity.y == y and libtcod.map_is_in_fov(fov_map, entity.x, entity.y)]
 	names = ', '.join(names)
 
@@ -55,7 +55,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
 	for entity in entities_in_render_order:
 		draw_entity(con, entity, fov_map)
 
-	libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
+	libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 8)
 
 	libtcod.console_set_default_background(panel, libtcod.black)
 	libtcod.console_clear(panel)
@@ -69,7 +69,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
 	libtcod.console_set_default_foreground(panel, libtcod.light_gray)
 	libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_under_mouse(mouse, entities, fov_map))
 
-	libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
+	libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, 0)
 
 	if game_state in (GameState.SHOW_INVENTORY, GameState.DROP_INVENTORY):
 		if game_state == GameState.SHOW_INVENTORY:

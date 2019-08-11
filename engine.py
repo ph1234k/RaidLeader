@@ -1,73 +1,87 @@
 import tcod as libtcod
 from game_states import GameState
-from entity import Entity, get_blocking_entities_at_location
-from components.fighter import Fighter
-from components.inventory import Inventory
-from input_handlers import handle_keys, handle_mouse
-from render_functions import clear_all, render_all, RenderOrder
-from game_messages import MessageLog, Message
+from entity import get_blocking_entities_at_location
+from loader_functions.initialize_new_game import get_constants, get_game_variables
+from loader_functions.data_loaders import load_game, save_game
+from menus import main_menu, message_box
+from input_handlers import handle_keys, handle_mouse, handle_main_menu
+from render_functions import clear_all, render_all
+from game_messages import Message
 from fov_functions import initialize_fov, recompute_fov
 from death_functions import kill_player, kill_monster
-from map_objects.game_map import GameMap
 
 def main():
-	screen_width = 80
-	screen_height = 50
+	constants = get_constants()
 	
-	bar_width = 20
-	panel_height = 7
-	panel_y = screen_height - panel_height
-	message_x = bar_width + 2
-	message_width = screen_width - bar_width - 2
-	message_height = panel_height - 1
-
-	map_width = 80
-	map_height = 43
-
-	room_max_size = 10
-	room_min_size = 6
-	max_rooms = 30
-
-	fov_algorithm = 0
-	fov_light_walls = True
-	fov_radius = 10
-
-	max_monsters_per_room = 3
-	max_items_per_room = 12
-
-	colors = {
-		'dark_wall': libtcod.Color(80, 80, 80),
-		'dark_ground': libtcod.Color(120, 120, 120),
-		'light_wall': libtcod.Color(130, 130, 130),
-		'light_ground': libtcod.Color(180, 180, 180)
-	}
-
-	player = Entity(0, 0, '@', libtcod.pink, "Player", blocks=True, render_order=RenderOrder.ACTOR, 
-		fighter=Fighter(hp=30, num_die=2, type_die=4, mod_die=2, defense=2), inventory=Inventory(52))
-	entities = [player]
-
 	libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
 
-	libtcod.console_init_root(screen_width, screen_height, 'NewRL', False)
+	libtcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False)
 
-	con = libtcod.console_new(screen_width, screen_height)
-	panel = libtcod.console_new(screen_width, panel_height)
-	game_map = GameMap(map_width, map_height)
-	game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room)
-	fov_recompute = True
-	fov_map = initialize_fov(game_map)
-	message_log = MessageLog(message_x, message_width, message_height)
+	con = libtcod.console_new(constants['screen_width'], constants['screen_height'])
+	panel = libtcod.console_new(constants['screen_width'], constants['panel_height'])
+
+	player, entities, game_map, message_log, game_state = None, [], None, None, None
+	
+	show_main_menu = True
+	show_load_error_message = False
+
+	main_menu_background_image = libtcod.image_load('menu_background.png')
+
 	key = libtcod.Key()
 	mouse = libtcod.Mouse()
-	game_state = GameState.PLAYER_TURN
+
+	while not libtcod.console_is_window_closed():
+		libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
+
+		if show_main_menu:
+			main_menu(con, main_menu_background_image, constants['screen_width'], constants['screen_height'])
+
+			if show_load_error_message:
+				message_box(con, 'No save game to load', 50, constants['screen_width'], constants['screen_height'])
+
+			libtcod.console_flush()
+
+			action = handle_main_menu(key)
+
+			new_game = action.get('new_game')
+			load_saved_game = action.get('load_game')
+			exit_game = action.get('exit')
+
+			if show_load_error_message and (new_game or load_saved_game or exit_game):
+				show_load_error_message = False
+			elif new_game:
+				player, entities, game_map, message_log, game_state = get_game_variables(constants)
+				game_state = GameState.PLAYER_TURN
+				show_main_menu = False
+			elif load_saved_game:
+				try:
+					player, entities, game_map, message_log, game_state = load_game()
+					show_main_menu = False
+				except FileNotFoundError:
+					show_load_error_message = True
+			elif exit_game:
+				break
+
+		else:
+			libtcod.console_clear(con)
+			play_game(player, entities, game_map, message_log, game_state, con, panel, constants)
+
+			show_main_menu = True
+
+
+def play_game(player, entities, game_map, message_log, game_state, con, panel, constants):
+	fov_recompute = True
+	fov_map = initialize_fov(game_map)
+	key = libtcod.Key()
+	mouse = libtcod.Mouse()
 	previous_game_state = game_state
 	targeting_item = None
 
 	while not libtcod.console_is_window_closed():
 		libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
 		if fov_recompute:
-			recompute_fov(fov_map, player.x, player.y, fov_radius)
-		render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, panel_y, mouse, colors, game_state)
+			recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'], constants['fov_algorithm'])
+		render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, constants['screen_width'], constants['screen_height'], constants['bar_width'], constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
 		fov_recompute = False
 		libtcod.console_flush()
 
@@ -134,6 +148,7 @@ def main():
 		if game_state == GameState.TARGETING:
 			if left_click:
 				target_x, target_y = left_click
+				target_y -= 8
 				item_use_results = player.inventory.use(targeting_item, entities=entities, fov_map=fov_map,
 					target_x=target_x, target_y=target_y)
 				player_turn_results.extend(item_use_results)
@@ -146,6 +161,7 @@ def main():
 			elif game_state == GameState.TARGETING:
 				player_turn_results.append({'targeting_cancelled': True})
 			else:
+				save_game(player, entities, game_map, message_log, game_state)
 				return True
 
 		if fullscreen:
@@ -210,5 +226,6 @@ def main():
 			else:
 				game_state = GameState.PLAYER_TURN
 
+	
 if __name__ == '__main__':
 	main()
