@@ -7,6 +7,8 @@ from components.fighter import Fighter
 from components.item import Item
 from components.item_functions import heal, cast_lightning, cast_fireball, cast_confuse
 from components.stairs import Stairs
+from dice import roll, random_choice_from_dict
+from generators.monsters import MonsterGen
 from map_objects.tile import Tile
 from map_objects.rectangle import Rect
 from render_functions import RenderOrder
@@ -18,6 +20,7 @@ class GameMap:
 		self.height = height
 		self.tiles = self.initialize_tiles()
 		self.dungeon_level = dungeon_level
+		self.monster_chances, self.monster_table = MonsterGen().gen_monster_table(self.dungeon_level)
 
 	def initialize_tiles(self):
 		tiles = [[Tile(True) for y in range(self.height)] for x in range(self.width)]
@@ -89,16 +92,9 @@ class GameMap:
 			x = randint(room.x1 + 1, room.x2 - 1)
 			y = randint(room.y1 + 1, room.y2 - 1)
 			if not any([entity for entity in entities if entity.x == x and entity.y == y]):
-				d100 = randint(0, 100)
-				if d100 < 70:
-					monster = Entity(x, y, 'Z', libtcod.darker_green, "Zombie", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
-						fighter=Fighter(hp=12, num_die=1, type_die=3, mod_die=1, defense=1, xp=35))
-				elif d100 < 95:
-					monster = Entity(x, y, 'z', libtcod.black, "Rotting Zombie", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
-						fighter=Fighter(hp=8, num_die=1, type_die=6, mod_die=1, defense=0, xp=100))
-				else:
-					monster = Entity(x, y, 'P', libtcod.pink, "Pocoyo", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
-						fighter=Fighter(hp=50, num_die=1, type_die=6, mod_die=1, defense=0, xp=500))
+				mon_template = self.monster_table[random_choice_from_dict(self.monster_chances)]
+				monster = Entity(x, y, mon_template.char, mon_template.color, mon_template.name, blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
+						fighter=Fighter(hp=mon_template.hp, num_die=mon_template.num_die, type_die=mon_template.type_die, mod_die=mon_template.mod_die, defense=mon_template.defense, xp=mon_template.xp))
 				entities.append(monster)
 		for i in range(number_of_items):
 			x = randint(room.x1 + 1, room.x2 - 1)
@@ -131,6 +127,7 @@ class GameMap:
 
 	def next_floor(self, player, message_log, constants):
 		self.dungeon_level += 1
+		self.monster_chances, self.monster_table = MonsterGen().gen_monster_table(self.dungeon_level)
 		entities = [player]
 
 		self.tiles = self.initialize_tiles()
