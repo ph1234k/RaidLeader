@@ -250,6 +250,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 				game_state = GameState.ENEMY_TURN
 			if xp:
 				leveled_up = player.level.add_xp(xp)
+				message_log.add_message(Message('You gain {0} XP!'.format(xp), libtcod.cyan))
 				if leveled_up:
 					message_log.add_message(Message('Your skills grow stronger. You reached level {0}!'.format(player.level.current_level), libtcod.green))
 					previous_game_state = game_state

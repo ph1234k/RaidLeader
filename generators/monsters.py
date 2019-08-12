@@ -5,17 +5,25 @@ class MonsterGen:
 
 	def __init__(self):
 		self.tier1 = {
-			'angry': MonsterPart(color=libtcod.red, name='angry', defense=-1, mod_die=3, xp=10)
+			'angry': MonsterPart(color=libtcod.red, name='angry', defense=-1, mod_die=5, xp=10),
+			'berserk': MonsterPart(color=libtcod.orange, name='berserk', defense=-5, num_die=3, mod_die=5, xp=50),
+			'drowsy': MonsterPart(color=libtcod.blue, name='drowsy', hp=50, defense=5, xp=10),
+			'rotting': MonsterPart(color=libtcod.black, name='rotting', hp=-10, defense=-1, mod_die=10, type_die=1, xp=50)
 		}
-		self.tier1_chances = {'angry': 1}
+		self.tier1_chances = {'angry': 1, 'berserk': 1, 'drowsy': 1, 'rotting': 1}
 		self.tier2 = {
-			'zombie': MonsterPart(char='Z', name='zombie', hp=10, num_die=1, type_die=4, defense=1, xp=35)
+			'zombie': MonsterPart(char='Z', name='zombie', hp=10, num_die=1, type_die=4, defense=1, xp=35),
+			'kobold': MonsterPart(char='k', name='kobold', hp=15, num_die=1, type_die=6, defense=3, xp=50),
+			'rat': MonsterPart(char='r', name='rat', hp=5, num_die=1, type_die=3, xp=10),
+			'orc': MonsterPart(char='o', name='orc', hp=50, num_die=1, type_die=8, defense=5, xp=150)
 		}
-		self.tier2_chances = {'zombie': 1}
+		self.tier2_chances = {'zombie': 1, 'kobold': 1, 'rat': 1, 'orc': 1}
 		self.tier3 = {
-			'warrior': MonsterPart(name='warrior', defense=1, hp=2, mod_die=1)
+			'warrior': MonsterPart(name='warrior', defense=1, hp=2, mod_die=1),
+			'obliterator': MonsterPart(name='obliterator', mod_die=10, xp=25),
+			'worshipper': MonsterPart(name='worshipper', mod_die=4, num_die=1, defense=3, xp=10)
 		}
-		self.tier3_chances = {'warrior': 1}
+		self.tier3_chances = {'warrior': 1, 'obliterator': 1, 'worshipper': 1}
 
 	def gen_monster_table(self, dungeon_level):
 		# Returns two dictionaries
@@ -48,7 +56,7 @@ class MonsterGen:
 	def gen_monster(self, CR):
 		# Roll base stats
 		monster = MonsterPart()
-		monster.hp = roll(5, 5) + CR
+		monster.hp = roll(5, CR + 5)
 		monster.defense = roll(1, CR)
 		monster.num_die = int(CR/3)
 		monster.mod_die = roll(1, CR)
