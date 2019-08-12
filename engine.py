@@ -5,10 +5,11 @@ from loader_functions.initialize_new_game import get_constants, get_game_variabl
 from loader_functions.data_loaders import load_game, save_game
 from menus import main_menu, message_box
 from input_handlers import handle_keys, handle_mouse, handle_main_menu
-from render_functions import clear_all, render_all
+from render_functions import clear_all, render_all, RenderOrder
 from game_messages import Message
 from fov_functions import initialize_fov, recompute_fov
 from death_functions import kill_player, kill_monster
+from dice import roll
 
 def main():
 	constants = get_constants()
@@ -98,6 +99,10 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 		drop_inventory = action.get('drop_inventory')
 		inventory_index = action.get('inventory_index')
 		wait = action.get('wait')
+		take_stairs = action.get('take_stairs')
+		eat = action.get('eat')
+		level_up = action.get('level_up')
+		show_character_screen = action.get('show_character_screen')
 
 		left_click = mouse_action.get('left_click')
 		right_click = mouse_action.get('right_click')
@@ -145,6 +150,37 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 		if wait:
 			game_state = GameState.ENEMY_TURN
 
+		if eat:
+			for entity in entities:
+				if entity.render_order == RenderOrder.CORPSE and (entity.x == player.x and entity.y == player.y):
+					player_turn_results.append({'consume_corpse': entity})
+					break
+			else:
+				message_log.add_message(Message('There is nothing to eat here.', libtcod.yellow))
+
+		if take_stairs and game_state == GameState.PLAYER_TURN:
+			for entity in entities:
+				if entity.stairs and entity.x == player.x and entity.y == player.y:
+					entities = game_map.next_floor(player, message_log, constants)
+					fov_map = initialize_fov(game_map)
+					fov_recompute = True
+					libtcod.console_clear(con)
+
+					break
+			else:
+				message_log.add_message(Message('There are no stairs here.', libtcod.yellow))
+		if level_up:
+			if level_up == 'hp':
+				player.fighter.max_hp += 20
+				player.fighter.hp += 20
+			elif level_up == 'def':
+				player.fighter.defense += 1
+			elif level_up == 'str':
+					player.fighter.num_die += roll(1, 3)
+					player.fighter.type_die += roll(1, 3)
+					player.fighter.mod_die += roll(1, 3)
+			game_state = GameState.ENEMY_TURN
+
 		if game_state == GameState.TARGETING:
 			if left_click:
 				target_x, target_y = left_click
@@ -155,8 +191,12 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			elif right_click:
 				player_turn_results.append({'targeting_cancelled': True})
 
+		if show_character_screen:
+			previous_game_state = game_state
+			game_state = GameState.CHARACTER_SCREEN
+
 		if exit:
-			if game_state in (GameState.SHOW_INVENTORY, GameState.DROP_INVENTORY):
+			if game_state in (GameState.SHOW_INVENTORY, GameState.DROP_INVENTORY, GameState.CHARACTER_SCREEN):
 				game_state = previous_game_state
 			elif game_state == GameState.TARGETING:
 				player_turn_results.append({'targeting_cancelled': True})
@@ -175,6 +215,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			item_dropped = player_turn_result.get('item_dropped')
 			targeting = player_turn_result.get('targeting')
 			targeting_cancelled = player_turn_result.get('targeting_cancelled')
+			consume_corpse = player_turn_result.get('consume_corpse')
+			xp = player_turn_result.get('xp')
 
 			if message:
 				message_log.add_message(message)
@@ -201,6 +243,17 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			if targeting_cancelled:
 				game_state = previous_game_state
 				message_log.add_message(Message('Targeting has been cancelled.'))
+			if consume_corpse:
+				player.fighter.take_damage(-5)
+				message_log.add_message(Message('You eat the {0} and regain some strength.'.format(consume_corpse.name)))
+				entities.remove(consume_corpse)
+				game_state = GameState.ENEMY_TURN
+			if xp:
+				leveled_up = player.level.add_xp(xp)
+				if leveled_up:
+					message_log.add_message(Message('Your skills grow stronger. You reached level {0}!'.format(player.level.current_level), libtcod.green))
+					previous_game_state = game_state
+					game_state = GameState.LEVEL_UP
 
 		if game_state == GameState.ENEMY_TURN:
 			for entity in entities:

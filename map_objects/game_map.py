@@ -6,16 +6,18 @@ from components.ai import BasicMonster
 from components.fighter import Fighter
 from components.item import Item
 from components.item_functions import heal, cast_lightning, cast_fireball, cast_confuse
+from components.stairs import Stairs
 from map_objects.tile import Tile
 from map_objects.rectangle import Rect
 from render_functions import RenderOrder
 from game_messages import Message
 
 class GameMap:
-	def __init__(self, width, height):
+	def __init__(self, width, height, dungeon_level=1):
 		self.width = width
 		self.height = height
 		self.tiles = self.initialize_tiles()
+		self.dungeon_level = dungeon_level
 
 	def initialize_tiles(self):
 		tiles = [[Tile(True) for y in range(self.height)] for x in range(self.width)]
@@ -25,6 +27,9 @@ class GameMap:
 	def make_map(self, max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room):
 		rooms = []
 		num_rooms = 0
+
+		center_of_last_room_x = None
+		center_of_last_room_y = None
 
 		for r in range(max_rooms):
 			w = randint(room_min_size, room_max_size)
@@ -39,6 +44,8 @@ class GameMap:
 			else:
 				self.create_room(new_room)
 				(new_x, new_y) = new_room.center()
+				center_of_last_room_x = new_x
+				center_of_last_room_y = new_y
 				if num_rooms == 0:
 					player.x = new_x
 					player.y = new_y
@@ -53,7 +60,10 @@ class GameMap:
 				self.place_entities(new_room, entities, max_monsters_per_room, max_items_per_room)
 				rooms.append(new_room)
 				num_rooms += 1
-
+		# WARNING! This does NOT check if the player can reach these stairs
+		down_stairs = Entity(center_of_last_room_x, center_of_last_room_y, '>', libtcod.white, 'Stairs', render_order=RenderOrder.STAIRS,
+			stairs=Stairs(self.dungeon_level + 1))
+		entities.append(down_stairs)
 	def create_room(self, room):
 		# Go through the tiles in room and make them passable
 		for x in range(room.x1 + 1, room.x2):
@@ -82,13 +92,13 @@ class GameMap:
 				d100 = randint(0, 100)
 				if d100 < 70:
 					monster = Entity(x, y, 'Z', libtcod.darker_green, "Zombie", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
-						fighter=Fighter(hp=12, num_die=1, type_die=3, mod_die=1, defense=1))
+						fighter=Fighter(hp=12, num_die=1, type_die=3, mod_die=1, defense=1, xp=35))
 				elif d100 < 95:
 					monster = Entity(x, y, 'z', libtcod.black, "Rotting Zombie", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
-						fighter=Fighter(hp=8, num_die=1, type_die=6, mod_die=1, defense=0))
+						fighter=Fighter(hp=8, num_die=1, type_die=6, mod_die=1, defense=0, xp=100))
 				else:
 					monster = Entity(x, y, 'P', libtcod.pink, "Pocoyo", blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
-						fighter=Fighter(hp=50, num_die=1, type_die=6, mod_die=1, defense=0))
+						fighter=Fighter(hp=50, num_die=1, type_die=6, mod_die=1, defense=0, xp=500))
 				entities.append(monster)
 		for i in range(number_of_items):
 			x = randint(room.x1 + 1, room.x2 - 1)
@@ -119,3 +129,13 @@ class GameMap:
 
 		return False
 
+	def next_floor(self, player, message_log, constants):
+		self.dungeon_level += 1
+		entities = [player]
+
+		self.tiles = self.initialize_tiles()
+		self.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities, constants['max_monsters_per_room'], constants['max_items_per_room'])
+
+		message_log.add_message(Message('Welcome to floor {0}'.format(self.dungeon_level), libtcod.light_cyan))
+
+		return entities

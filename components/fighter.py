@@ -4,7 +4,7 @@ from game_messages import Message
 
 class Fighter:
 
-	def __init__(self, hp, num_die, type_die, mod_die, defense):
+	def __init__(self, hp, num_die, type_die, mod_die, defense, xp=0):
 		self.max_hp = hp
 		self.hp = hp
 		# The die variables will work as follows
@@ -14,6 +14,7 @@ class Fighter:
 		self.type_die = type_die
 		self.mod_die = mod_die
 		self.defense = defense
+		self.xp = xp
 
 	def take_damage(self, amount):
 		results = []
@@ -23,7 +24,7 @@ class Fighter:
 			self.hp = self.max_hp
 		elif self.hp <= 0:
 			self.hp = 0
-			results.append({'dead': self.owner})
+			results.append({'dead': self.owner, 'xp': self.xp})
 		
 		return results
 
