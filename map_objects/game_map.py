@@ -63,10 +63,12 @@ class GameMap:
 				self.place_entities(new_room, entities, max_monsters_per_room, max_items_per_room)
 				rooms.append(new_room)
 				num_rooms += 1
-		# WARNING! This does NOT check if the player can reach these stairs
 		down_stairs = Entity(center_of_last_room_x, center_of_last_room_y, '>', libtcod.white, 'Stairs', render_order=RenderOrder.STAIRS,
 			stairs=Stairs(self.dungeon_level + 1))
 		entities.append(down_stairs)
+		if not self.is_path_to(player, down_stairs, entities):
+			self.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room)
+
 	def create_room(self, room):
 		# Go through the tiles in room and make them passable
 		for x in range(room.x1 + 1, room.x2):
@@ -136,3 +138,37 @@ class GameMap:
 		message_log.add_message(Message('Welcome to floor {0}'.format(self.dungeon_level), libtcod.light_cyan))
 
 		return entities
+
+	def is_path_to(self, source, target, entities):
+		result = False
+		# Create a FOV map that has the dimensions of the map
+		fov = libtcod.map_new(self.width, self.height)
+
+		# Scan the current map each turn and set all the walls as unwalkable
+		for y1 in range(self.height):
+			for x1 in range(self.width):
+				libtcod.map_set_properties(fov, x1, y1, not self.tiles[x1][y1].block_sight,
+										   not self.tiles[x1][y1].blocked)
+
+		# Scan all the objects to see if there are objects that must be navigated around
+		# Check also that the object isn't self or the target (so that the start and the end points are free)
+		# The AI class handles the situation if self is next to the target so it will not use this A* function anyway
+		for entity in entities:
+			if entity.blocks and entity != self and entity != target:
+				# Set the tile as a wall so it must be navigated around
+				libtcod.map_set_properties(fov, entity.x, entity.y, True, False)
+
+		# Allocate a A* path
+		# The 1.41 is the normal diagonal cost of moving, it can be set as 0.0 if diagonal moves are prohibited
+		my_path = libtcod.path_new_using_map(fov, 1.41)
+
+		# Compute the path between self's coordinates and the target's coordinates
+		libtcod.path_compute(my_path, source.x, source.y, target.x, target.y)
+
+		# Check if the path exists
+		if not libtcod.path_is_empty(my_path):
+			result = True
+
+		# Delete the path to free memory
+		libtcod.path_delete(my_path)
+		return result
