@@ -8,22 +8,29 @@ class MonsterGen:
 			'angry': MonsterPart(color=libtcod.red, name='angry', defense=-1, mod_die=5, xp=10),
 			'berserk': MonsterPart(color=libtcod.orange, name='berserk', defense=-5, num_die=3, mod_die=5, xp=50),
 			'drowsy': MonsterPart(color=libtcod.blue, name='drowsy', hp=50, defense=5, xp=10),
-			'rotting': MonsterPart(color=libtcod.black, name='rotting', hp=-10, defense=-1, mod_die=10, type_die=1, xp=50)
+			'rotting': MonsterPart(color=libtcod.black, name='rotting', hp=-10, defense=-1, mod_die=10, type_die=1, xp=50),
+			'quick': MonsterPart(color=libtcod.violet, name='quick', num_die=2, xp=20),
+			'lucky': MonsterPart(color=libtcod.green, name='lucky', xp=777),
+			'deadly': MonsterPart(color=libtcod.light_cyan, name='dangerous', num_die=2, type_die=6, mod_die=5, xp=5000, hp=50, defense=25)
 		}
-		self.tier1_chances = {'angry': 1, 'berserk': 1, 'drowsy': 1, 'rotting': 1}
+		self.tier1_chances = {'angry': 3, 'berserk': 3, 'drowsy': 3, 'rotting': 3, 'quick': 3, 'lucky': 1, 'dangerous': 1}
 		self.tier2 = {
 			'zombie': MonsterPart(char='Z', name='zombie', hp=10, num_die=1, type_die=4, defense=1, xp=35),
 			'kobold': MonsterPart(char='k', name='kobold', hp=15, num_die=1, type_die=6, defense=3, xp=50),
 			'rat': MonsterPart(char='r', name='rat', hp=5, num_die=1, type_die=3, xp=10),
-			'orc': MonsterPart(char='o', name='orc', hp=50, num_die=1, type_die=8, defense=5, xp=150)
+			'orc': MonsterPart(char='o', name='orc', hp=50, num_die=1, type_die=8, defense=5, xp=150),
+			'dragon': MonsterPart(char='D', name='dragon', hp=100, num_die=4, type_die=6, mod_die=5, defense=15, xp=200),
+			'snorklefarker': MonsterPart(char='S', name='snorklefarker', hp=1000, num_die=8, type_die=12, mod_die=8, defense=100, xp=5000)
 		}
-		self.tier2_chances = {'zombie': 1, 'kobold': 1, 'rat': 1, 'orc': 1}
+		self.tier2_chances = {'zombie': 6, 'kobold': 6, 'rat': 6, 'orc': 4, 'dragon': 2, 'snorklefarker': 1}
 		self.tier3 = {
 			'warrior': MonsterPart(name='warrior', defense=1, hp=2, mod_die=1),
 			'obliterator': MonsterPart(name='obliterator', mod_die=10, xp=25),
-			'worshipper': MonsterPart(name='worshipper', mod_die=4, num_die=1, defense=3, xp=10)
+			'worshipper': MonsterPart(name='worshipper', mod_die=4, num_die=1, defense=3, xp=10),
+			'basic': MonsterPart(hp=40),
+			'demigod': MonsterPart(name='demigod', hp=1000, defense=100, xp=500)
 		}
-		self.tier3_chances = {'warrior': 1, 'obliterator': 1, 'worshipper': 1}
+		self.tier3_chances = {'warrior': 2, 'obliterator': 2, 'worshipper': 2, 'basic': 4, 'demigod': 1}
 
 	def gen_monster_table(self, dungeon_level):
 		# Returns two dictionaries
@@ -59,6 +66,7 @@ class MonsterGen:
 		monster.hp = roll(5, CR + 5)
 		monster.defense = roll(1, CR)
 		monster.num_die = int(CR/3)
+		monster.type_die = roll(1, CR)
 		monster.mod_die = roll(1, CR)
 		monster.xp = CR * 25
 		choice1 = self.tier1[random_choice_from_dict(self.tier1_chances)]

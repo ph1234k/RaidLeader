@@ -16,6 +16,7 @@ def kill_monster(monster):
 	monster.char = '%'
 	monster.color = libtcod.dark_red
 	monster.blocks = False
+	monster.defense = monster.fighter.defense
 	monster.fighter = None
 	monster.ai = None
 	monster.name = 'remains of ' + monster.name

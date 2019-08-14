@@ -148,6 +148,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 				player_turn_results.extend(player.inventory.drop_item(item))
 
 		if wait:
+			player.fighter.take_damage(-5)
 			game_state = GameState.ENEMY_TURN
 
 		if eat:
@@ -176,9 +177,10 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			elif level_up == 'def':
 				player.fighter.defense += 1
 			elif level_up == 'str':
-					player.fighter.num_die += roll(1, 3)
-					player.fighter.type_die += roll(1, 3)
-					player.fighter.mod_die += roll(1, 3)
+				if roll(1, 3) == 3:
+					player.fighter.num_die += 1 + roll(1, 3)
+					player.fighter.type_die += 1 + roll(1, 3)
+				player.fighter.mod_die += 1
 			game_state = GameState.ENEMY_TURN
 
 		if game_state == GameState.TARGETING:
@@ -244,8 +246,9 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 				game_state = previous_game_state
 				message_log.add_message(Message('Targeting has been cancelled.'))
 			if consume_corpse:
-				player.fighter.take_damage(-5)
-				message_log.add_message(Message('You eat the {0} and regain some strength.'.format(consume_corpse.name)))
+				player.fighter.take_damage(-50)
+				message_log.add_message(Message('You eat the {0} and gain some strength.'.format(consume_corpse.name)))
+				player.fighter.defense += consume_corpse.defense
 				entities.remove(consume_corpse)
 				game_state = GameState.ENEMY_TURN
 			if xp:

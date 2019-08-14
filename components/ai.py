@@ -25,17 +25,13 @@ class ConfusedMonster:
 		results = []
 
 		if self.num_turns > 0:
-			if randint(0, 3) == 3:
-				self.owner.ai = self.previous_ai
-				results.append({'message': Message('The {0} is no longer cofused.'.format(self.owner.name), libtcod.red)})
-			else:
-				random_x = self.owner.x + randint(0, 2) - 1
-				random_y = self.owner.y + randint(0, 2) - 1
-				if random_x != self.owner.x or random_y != self.owner.y:
-					self.owner.move_towards(random_x, random_y, game_map, entities)
-				self.num_turns -= 1
+			random_x = self.owner.x + randint(0, 2) - 1
+			random_y = self.owner.y + randint(0, 2) - 1
+			if random_x != self.owner.x or random_y != self.owner.y:
+				self.owner.move_towards(random_x, random_y, game_map, entities)
+			self.num_turns -= 1
 		else:
-			self.owner.ai = previous_ai
+			self.owner.ai = self.previous_ai
 			results.append({'message': Message('The {0} is no longer cofused.'.format(self.owner.name), libtcod.red)})
 
 		return results
