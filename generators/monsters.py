@@ -11,9 +11,9 @@ class MonsterGen:
 			'rotting': MonsterPart(color=libtcod.black, name='rotting', hp=-10, defense=-1, mod_die=10, type_die=1, xp=50),
 			'quick': MonsterPart(color=libtcod.violet, name='quick', num_die=2, xp=20),
 			'lucky': MonsterPart(color=libtcod.green, name='lucky', xp=777),
-			'deadly': MonsterPart(color=libtcod.light_cyan, name='dangerous', num_die=2, type_die=6, mod_die=5, xp=5000, hp=50, defense=25)
+			'deadly': MonsterPart(color=libtcod.light_cyan, name='deadly', num_die=2, type_die=6, mod_die=5, xp=5000, hp=50, defense=25)
 		}
-		self.tier1_chances = {'angry': 3, 'berserk': 3, 'drowsy': 3, 'rotting': 3, 'quick': 3, 'lucky': 1, 'dangerous': 1}
+		self.tier1_chances = {'angry': 3, 'berserk': 3, 'drowsy': 3, 'rotting': 3, 'quick': 3, 'lucky': 1, 'deadly': 1}
 		self.tier2 = {
 			'zombie': MonsterPart(char='Z', name='zombie', hp=10, num_die=1, type_die=4, defense=1, xp=35),
 			'kobold': MonsterPart(char='k', name='kobold', hp=15, num_die=1, type_die=6, defense=3, xp=50),

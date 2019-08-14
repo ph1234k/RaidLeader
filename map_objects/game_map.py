@@ -9,6 +9,7 @@ from components.item_functions import heal, cast_lightning, cast_fireball, cast_
 from components.stairs import Stairs
 from dice import roll, random_choice_from_dict
 from generators.monsters import MonsterGen
+from generators.items import ItemGen
 from map_objects.tile import Tile
 from map_objects.rectangle import Rect
 from render_functions import RenderOrder
@@ -21,6 +22,7 @@ class GameMap:
 		self.tiles = self.initialize_tiles()
 		self.dungeon_level = dungeon_level
 		self.monster_chances, self.monster_table = MonsterGen().gen_monster_table(self.dungeon_level)
+		self.item_chances, self.item_table = ItemGen().gen_item_table(self.dungeon_level)
 
 	def initialize_tiles(self):
 		tiles = [[Tile(True) for y in range(self.height)] for x in range(self.width)]
@@ -104,21 +106,9 @@ class GameMap:
 			# TODO: Allow items to spawn on each other. (add: and not entity.item)
 			# TDOD: Will be annoying to test though. Might bump up max items when doing so
 			if not any([entity for entity in entities if entity.x == x and entity.y == y]):
-				d100 = randint(0, 100)
-				if d100 < 70:
-					item = Entity(x, y, '!', libtcod.violet, "Healing Potion", render_order=RenderOrder.ITEM,
-						item=Item(use_function=heal, amount=5))
-				elif d100 < 80:
-					item = Entity(x, y, "?", libtcod.red, "Fireball Scroll", render_order=RenderOrder.ITEM,
-						item=Item(use_function=cast_fireball, targeting=True, damage=12, radius=3,
-							targeting_message=Message('Left click target tile to cast, or right click to cancel', libtcod.light_cyan)))
-				elif d100 < 90:
-					item = Entity(x, y, '?', libtcod.yellow, "Lightning Scroll", render_order=RenderOrder.ITEM,
-						item=Item(use_function=cast_lightning, damage=20, maximum_range=5))
-				else:
-					item = Entity(x, y, '?', libtcod.light_pink, 'Confusion Scroll', render_order=RenderOrder.ITEM,
-								  item=Item(use_function=cast_confuse, targeting=True, targeting_message=Message(
-						'Left-click an enemy to confuse it, or right-click to cancel.', libtcod.light_cyan)))
+				item_template = self.item_table[random_choice_from_dict(self.item_chances)]
+				item = Entity(x, y, item_template.char, item_template.color, item_template.name, render_order=RenderOrder.ITEM,
+				 item=item_template.item)
 				entities.append(item)
 
 	def is_blocked(self, x, y):
@@ -130,6 +120,7 @@ class GameMap:
 	def next_floor(self, player, message_log, constants):
 		self.dungeon_level += 1
 		self.monster_chances, self.monster_table = MonsterGen().gen_monster_table(self.dungeon_level)
+		self.item_chances, self.item_table = ItemGen().gen_item_table(self.dungeon_level)
 		entities = [player]
 
 		self.tiles = self.initialize_tiles()
