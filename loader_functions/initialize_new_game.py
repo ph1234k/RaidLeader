@@ -1,4 +1,5 @@
 import tcod as libtcod
+from components.equipment import Equipment
 from components.fighter import Fighter
 from components.level import Level
 from components.inventory import Inventory
@@ -68,7 +69,7 @@ def get_constants():
 
 def get_game_variables(constants):
 	player = Entity(0, 0, '@', libtcod.pink, "Player", blocks=True, render_order=RenderOrder.ACTOR, 
-		fighter=Fighter(hp=100, num_die=4, type_die=8, mod_die=6, defense=10), inventory=Inventory(52), level=Level())
+		fighter=Fighter(hp=100, num_die=4, type_die=8, mod_die=6, defense=10), inventory=Inventory(52), level=Level(), equipment=Equipment())
 	entities = [player]
 	game_map = GameMap(constants['map_width'], constants['map_height'])
 	game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities, constants['max_monsters_per_room'], constants['max_items_per_room'])

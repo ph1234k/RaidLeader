@@ -5,16 +5,56 @@ from game_messages import Message
 class Fighter:
 
 	def __init__(self, hp, num_die, type_die, mod_die, defense, xp=0):
-		self.max_hp = hp
+		self.base_max_hp = hp
 		self.hp = hp
 		# The die variables will work as follows
 		# Damage = XDY+Z
 		# Where X is num_die, Y is type_die and Z is mod_die
-		self.num_die = num_die
-		self.type_die = type_die
-		self.mod_die = mod_die
-		self.defense = defense
+		self.base_num_die = num_die
+		self.base_type_die = type_die
+		self.base_mod_die = mod_die
+		self.base_defense = defense
 		self.xp = xp
+
+	@property
+	def max_hp(self):
+		if self.owner and self.owner.equipment:
+			bonus = self.owner.equipment.max_hp_bonus
+		else:
+			bonus = 0	
+		return self.base_max_hp + bonus
+
+	@property
+	def defense(self):
+		if self.owner and self.owner.equipment:
+			bonus = self.owner.equipment.defense_bonus
+		else:
+			bonus = 0	
+		return self.base_defense + bonus
+
+	@property
+	def num_die(self):
+		if self.owner and self.owner.equipment:
+			bonus = self.owner.equipment.num_die_bonus
+		else:
+			bonus = 0	
+		return self.base_num_die + bonus
+
+	@property
+	def type_die(self):
+		if self.owner and self.owner.equipment:
+			bonus = self.owner.equipment.type_die_bonus
+		else:
+			bonus = 0	
+		return self.base_type_die + bonus
+
+	@property
+	def mod_die(self):
+		if self.owner and self.owner.equipment:
+			bonus = self.owner.equipment.mod_die_bonus
+		else:
+			bonus = 0	
+		return self.base_mod_die + bonus
 
 	def take_damage(self, amount):
 		results = []

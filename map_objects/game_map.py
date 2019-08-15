@@ -108,7 +108,7 @@ class GameMap:
 			if not any([entity for entity in entities if entity.x == x and entity.y == y]):
 				item_template = self.item_table[random_choice_from_dict(self.item_chances)]
 				item = Entity(x, y, item_template.char, item_template.color, item_template.name, render_order=RenderOrder.ITEM,
-				 item=item_template.item)
+				 item=item_template.item, equippable=item_template.equippable)
 				entities.append(item)
 
 	def is_blocked(self, x, y):

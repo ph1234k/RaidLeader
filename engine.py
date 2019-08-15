@@ -172,15 +172,15 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 				message_log.add_message(Message('There are no stairs here.', libtcod.yellow))
 		if level_up:
 			if level_up == 'hp':
-				player.fighter.max_hp += 20
+				player.fighter.base_max_hp += 20
 				player.fighter.hp += 20
 			elif level_up == 'def':
-				player.fighter.defense += 1
+				player.fighter.base_defense += 1
 			elif level_up == 'str':
 				if roll(1, 3) == 3:
-					player.fighter.num_die += 1 + roll(1, 3)
-					player.fighter.type_die += 1 + roll(1, 3)
-				player.fighter.mod_die += 1
+					player.fighter.base_num_die += 1 + roll(1, 3)
+					player.fighter.base_type_die += 1 + roll(1, 3)
+				player.fighter.base_mod_die += 1
 			game_state = GameState.ENEMY_TURN
 
 		if game_state == GameState.TARGETING:
@@ -219,6 +219,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			targeting_cancelled = player_turn_result.get('targeting_cancelled')
 			consume_corpse = player_turn_result.get('consume_corpse')
 			xp = player_turn_result.get('xp')
+			equip = player_turn_result.get('equip')
 
 			if message:
 				message_log.add_message(message)
@@ -248,7 +249,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			if consume_corpse:
 				player.fighter.take_damage(-50)
 				message_log.add_message(Message('You eat the {0} and gain some strength.'.format(consume_corpse.name)))
-				player.fighter.defense += consume_corpse.defense
+				player.fighter.base_defense += consume_corpse.defense
 				entities.remove(consume_corpse)
 				game_state = GameState.ENEMY_TURN
 			if xp:
@@ -258,6 +259,17 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 					message_log.add_message(Message('Your skills grow stronger. You reached level {0}!'.format(player.level.current_level), libtcod.green))
 					previous_game_state = game_state
 					game_state = GameState.LEVEL_UP
+			if equip:
+				equip_results = player.equipment.toggle_equip(equip)
+
+				for equip_result in equip_results:
+					equipped = equip_result.get('equipped')
+					dequipped = equip_result.get('dequipped')
+					if equipped:
+						message_log.add_message(Message('You equipped the {0}'.format(equipped.name)))
+					if dequipped:
+						message_log.add_message(Message('You dequipped the {0}'.format(dequipped.name)))
+				game_state = GameState.ENEMY_TURN
 
 		if game_state == GameState.ENEMY_TURN:
 			for entity in entities:
