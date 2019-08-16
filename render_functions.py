@@ -79,7 +79,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
 			title = 'Press the key next to an item to use it, or Esc to cancel.\n'
 		else:
 			title = 'Press the key next to an item to drop it, or Esc to cancel.\n'
-		inventory_menu(con, title, player.inventory, 50, screen_width, screen_height)
+		inventory_menu(con, title, player, 50, screen_width, screen_height)
 	elif game_state == GameState.LEVEL_UP:
 		level_up_menu(con, 'Level Up! Choose a gift:', player, 40, screen_width, screen_height)
 	elif game_state == GameState.CHARACTER_SCREEN:

@@ -32,12 +32,19 @@ def menu(con, header, options, width, screen_width, screen_height):
 	y = int(screen_height / 2 - height / 2)
 	libtcod.console_blit(window, 0, 0, width, height, 0, x, y, 1.0, 0.7)
 
-def inventory_menu(con, header, inventory, inventory_width, screen_width, screen_height):
+def inventory_menu(con, header, player, inventory_width, screen_width, screen_height):
 	# Shows a menu with each item of inventory as an option
-	if len(inventory.items) == 0:
+	if len(player.inventory.items) == 0:
 		options = ['Inventory is empty.']
 	else:
-		options = [item.name for item in inventory.items]
+		options = []
+		for item in player.inventory.items:
+			if player.equipment.weapon == item:
+				options.append('{0} (wielded)'.format(item.name))
+			elif player.equipment.head == item or player.equipment.chest == item or player.equipment.neck == item or player.equipment.gloves == item or player.equipment.legs == item or player.equipment.boots == item or player.equipment.left_ring == item or player.equipment.right_ring == item:
+				options.append('{0} (worn)'.format(item.name))
+			else:
+				options.append(item.name)
 	menu(con, header, options, inventory_width, screen_width, screen_height)
 
 def main_menu(con, background_image, screen_width, screen_height):
