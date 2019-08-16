@@ -31,7 +31,7 @@ class MonsterGen:
 			'basic': MonsterPart(hp=40),
 			'demigod': MonsterPart(name='demigod', hp=1000, defense=100, xp=500)
 		}
-		self.tier3_chances = {'warrior': 2, 'obliterator': 2, 'worshipper': 2, 'basic': 4, 'demigod': 1}
+		self.tier3_chances = {'warrior': 2, 'obliterator': 2, 'worshipper': 2, 'basic': 4, 'demigod': from_dungeon_level([[1, 10]], self.dungeon_level)}
 
 	def gen_monster_table(self):
 		# Returns two dictionaries

@@ -42,11 +42,11 @@ def handle_keys_player_turn(key):
         return {'show_inventory': True}
     elif key_char == 'd':
         return {'drop_inventory': True}
-    elif key_char == '.':
+    elif key_char == '.' and not key.shift:
         return {'wait': True}
     elif key_char == 'e':
         return {'eat': True}
-    elif key.vk == libtcod.KEY_ENTER:
+    elif key.vk == libtcod.KEY_ENTER or (key_char == '.'):
         return {'take_stairs': True}
     elif key_char == 'c':
         return {'show_character_screen': True}
@@ -77,11 +77,11 @@ def handle_keys_player_dead(key):
 
 def handle_keys_show_inventory(key):
     index = 0
-    if (key.c >= ord('a')) and (key.c <= ord('z')):
-        index = key.c - ord('a')
+    if (key.c >= ord('a')) and (key.c <= ord('z')) and key.shift:
+        index = key.c - ord('a') + 26
         return {'inventory_index': index}
-    elif (key.c >= ord('A')) and (key.c <= ord('Z')):
-        index = key.c - ord('A') + 26
+    elif (key.c >= ord('a')) and (key.c <= ord('z')) and not key.shift:
+        index = key.c - ord('a')
         return {'inventory_index': index}
 
     if key.vk == libtcod.KEY_ENTER and key.lalt:
