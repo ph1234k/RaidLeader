@@ -28,17 +28,17 @@ class ItemGen:
 		}
 		self.item_chances = {'healing potion': 75, 'fireball scroll': 10, 'lightning scroll': 5, 'confusion scroll': 5}
 		
-		self.tier1 = {
+		self.weapon_attribute = {
 			'broken': ItemPart(name='broken', color=libtcod.dark_red, equippable=Equippable(None, mod_die_bonus=-2)),
 			'pristine': ItemPart(name='pristine', color=libtcod.yellow, equippable=Equippable(None, mod_die_bonus=1)),
 			'blessed': ItemPart(name='blessed', color=libtcod.pink, equippable=Equippable(None, mod_die_bonus=3)),
 			'basic': ItemPart(name='', color=libtcod.white, equippable=Equippable(None))
 		}
-		self.tier1_chances = {'broken': 4, 'pristine': 4, 'blessed': 1, 'basic': 8}
-		self.tier2 = {
+		self.weapon_attribute_chances = {'broken': 4, 'pristine': 4, 'blessed': 1, 'basic': 8}
+		self.weapon_type = {
 			'sword': ItemPart(name='sword', char='/', equippable=Equippable(slot=EquipmentSlots.WEAPON, num_die_bonus=1, type_die_bonus=6))
 		}
-		self.tier2_chances = {'sword': 5}
+		self.weapon_type_chances = {'sword': 5}
 
 	def gen_item_table(self, dungeon_level):
 		self.item_chances['fireball scroll'] += 10
@@ -55,8 +55,8 @@ class ItemGen:
 		return self.item_chances, self.items
 
 	def gen_item(self, dungeon_level):
-		t1 = self.tier1[random_choice_from_dict(self.tier1_chances)]
-		t2 = self.tier2[random_choice_from_dict(self.tier2_chances)]
+		t1 = self.weapon_attribute[random_choice_from_dict(self.weapon_attribute_chances)]
+		t2 = self.weapon_type[random_choice_from_dict(self.weapon_type_chances)]
 		uniqify = str(roll(300, 300))
 		new_equipment = ItemPart()
 		new_equipment.char = t2.char

@@ -7,7 +7,7 @@ from components.fighter import Fighter
 from components.item import Item
 from components.item_functions import heal, cast_lightning, cast_fireball, cast_confuse
 from components.stairs import Stairs
-from dice import roll, random_choice_from_dict
+from dice import roll, random_choice_from_dict, from_dungeon_level
 from generators.monsters import MonsterGen
 from generators.items import ItemGen
 from map_objects.tile import Tile
@@ -21,7 +21,7 @@ class GameMap:
 		self.height = height
 		self.tiles = self.initialize_tiles()
 		self.dungeon_level = dungeon_level
-		self.monster_chances, self.monster_table = MonsterGen().gen_monster_table(self.dungeon_level)
+		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table()
 		self.item_chances, self.item_table = ItemGen().gen_item_table(self.dungeon_level)
 
 	def initialize_tiles(self):
@@ -29,7 +29,7 @@ class GameMap:
 
 		return tiles
 
-	def make_map(self, max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room):
+	def make_map(self, max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities):
 		rooms = []
 		num_rooms = 0
 
@@ -62,14 +62,14 @@ class GameMap:
 					else:
 						self.create_v_tunnel(prev_y, new_y, prev_x)
 						self.create_h_tunnel(prev_x, new_x, prev_y)
-				self.place_entities(new_room, entities, max_monsters_per_room, max_items_per_room)
+				self.place_entities(new_room, entities)
 				rooms.append(new_room)
 				num_rooms += 1
 		down_stairs = Entity(center_of_last_room_x, center_of_last_room_y, '>', libtcod.white, 'Stairs', render_order=RenderOrder.STAIRS,
 			stairs=Stairs(self.dungeon_level + 1))
 		entities.append(down_stairs)
 		if not self.is_path_to(player, down_stairs, entities):
-			self.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room)
+			self.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities)
 
 	def create_room(self, room):
 		# Go through the tiles in room and make them passable
@@ -88,7 +88,9 @@ class GameMap:
 			self.tiles[x][y].blocked = False
 			self.tiles[x][y].block_sight = False
 
-	def place_entities(self, room, entities, max_monsters_per_room, max_items_per_room):
+	def place_entities(self, room, entities):
+		max_monsters_per_room = from_dungeon_level([[2, 1], [3, 4], [5, 6]], self.dungeon_level)
+		max_items_per_room = from_dungeon_level([[1, 1], [2, 4]], self.dungeon_level)
 		number_of_monsters = randint(0, max_monsters_per_room)
 		number_of_items = randint(0, max_items_per_room)
 
@@ -119,12 +121,12 @@ class GameMap:
 
 	def next_floor(self, player, message_log, constants):
 		self.dungeon_level += 1
-		self.monster_chances, self.monster_table = MonsterGen().gen_monster_table(self.dungeon_level)
+		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table()
 		self.item_chances, self.item_table = ItemGen().gen_item_table(self.dungeon_level)
 		entities = [player]
 
 		self.tiles = self.initialize_tiles()
-		self.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities, constants['max_monsters_per_room'], constants['max_items_per_room'])
+		self.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)
 
 		message_log.add_message(Message('Welcome to floor {0}'.format(self.dungeon_level), libtcod.light_cyan))
 
