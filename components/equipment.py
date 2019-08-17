@@ -141,6 +141,29 @@ class Equipment:
 			bonus += self.left_ring.equippable.mod_die_bonus
 		if self.right_ring and self.right_ring.equippable:
 			bonus += self.right_ring.equippable.mod_die_bonus
+		return bonus
+
+	@property
+	def speed_bonus(self):
+		bonus = 0
+		if self.weapon and self.weapon.equippable:
+			bonus += self.weapon.equippable.speed_bonus
+		if self.head and self.head.equippable:
+			bonus += self.head.equippable.speed_bonus
+		if self.neck and self.neck.equippable:
+			bonus += self.neck.equippable.speed_bonus
+		if self.chest and self.chest.equippable:
+			bonus += self.chest.equippable.speed_bonus
+		if self.gloves and self.gloves.equippable:
+			bonus += self.gloves.equippable.speed_bonus
+		if self.legs and self.legs.equippable:
+			bonus += self.legs.equippable.speed_bonus
+		if self.boots and self.boots.equippable:
+			bonus += self.boots.equippable.speed_bonus
+		if self.left_ring and self.left_ring.equippable:
+			bonus += self.left_ring.equippable.speed_bonus
+		if self.right_ring and self.right_ring.equippable:
+			bonus += self.right_ring.equippable.speed_bonus
 
 		return bonus
 
@@ -219,24 +242,31 @@ class Equipment:
 
 				self.legs = equippable_entity
 				results.append({'equipped': equippable_entity})
-		elif slot == EquipmentSlots.LEFT_RING:
-			if self.left_ring == equippable_entity:
-				self.left_ring = None
-				results.append({'dequipped': equippable_entity})
-			else:
-				if self.left_ring:
-					results.append({'dequipped': self.left_ring})
-
-				self.left_ring = equippable_entity
-				results.append({'equipped': equippable_entity})
-		elif slot == EquipmentSlots.RIGHT_RING:
-			if self.right_ring == equippable_entity:
-				self.right_ring = None
-				results.append({'dequipped': equippable_entity})
-			else:
-				if self.right_ring:
-					results.append({'dequipped': self.right_ring})
-
-				self.right_ring = equippable_entity
-				results.append({'equipped': equippable_entity})
+		elif slot == EquipmentSlots.LEFT_RING or slot == EquipmentSlots.RIGHT_RING:
+			if self.left_ring == None:
+				if self.right_ring == equippable_entity:
+					self.right_ring = None
+					results.append({'dequipped': equippable_entity})
+				else:
+					self.left_ring = equippable_entity
+					results.append({'equipped': equippable_entity})
+			else: 
+				if self.right_ring == None:
+					if self.left_ring == equippable_entity:
+						self.left_ring = None
+						results.append({'dequipped': self.left_ring})
+					else:
+						self.right_ring = equippable_entity
+						results.append({'equipped': equippable_entity})
+				elif self.left_ring and self.right_ring:
+					if self.right_ring == equippable_entity:
+						self.right_ring = None
+						results.append({'dequipped': equippable_entity})
+					elif self.left_ring == equippable_entity:
+						self.left_ring = None
+						results.append({'dequipped': equippable_entity})
+					else:
+						results.append({'dequipped': self.left_ring})
+						self.left_ring = equippable_entity
+						results.append({'equipped': equippable_entity})
 		return results

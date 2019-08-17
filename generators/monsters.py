@@ -19,7 +19,7 @@ class MonsterGen:
 			'zombie': MonsterPart(char='Z', name='zombie', hp=10, num_die=1, type_die=4, defense=1, xp=35),
 			'kobold': MonsterPart(char='k', name='kobold', hp=15, num_die=1, type_die=6, defense=3, xp=50),
 			'rat': MonsterPart(char='r', name='rat', hp=5, num_die=1, type_die=3, xp=10),
-			'orc': MonsterPart(char='o', name='orc', hp=50, num_die=1, type_die=8, defense=5, xp=150),
+			'orc': MonsterPart(char='O', name='orc', hp=50, num_die=1, type_die=8, defense=5, xp=150),
 			'dragon': MonsterPart(char='D', name='dragon', hp=100, num_die=4, type_die=6, mod_die=5, defense=15, xp=200),
 			'snorklefarker': MonsterPart(char='S', name='snorklefarker', hp=1000, num_die=8, type_die=12, mod_die=8, defense=100, xp=5000, chance_table=-5)
 		}

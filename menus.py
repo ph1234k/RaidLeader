@@ -64,7 +64,8 @@ def message_box(con, header, width, screen_width, screen_height):
 def level_up_menu(con, header, player, menu_width, screen_width, screen_height):
 	options = ['Health. New HP: {0}'.format(player.fighter.max_hp+20),
 		'Defense. New Defense: {0}'.format(player.fighter.defense+1),
-		'Power. New Damage >= {0}d{1} + {2}'.format(player.fighter.num_die,player.fighter.type_die,player.fighter.mod_die+1)]
+		'Power. New Damage: {0}d{1} + {2}'.format(player.fighter.num_die,player.fighter.type_die,player.fighter.mod_die+1),
+		'Speed. New Speed: {0}'.format(player.fighter.speed)]
 
 	menu(con, header, options, menu_width, screen_width, screen_height)
 

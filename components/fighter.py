@@ -4,7 +4,7 @@ from game_messages import Message
 
 class Fighter:
 
-	def __init__(self, hp, num_die, type_die, mod_die, defense, xp=0):
+	def __init__(self, hp, num_die, type_die, mod_die, defense, speed=0, xp=0):
 		self.base_max_hp = hp
 		self.hp = hp
 		# The die variables will work as follows
@@ -14,6 +14,7 @@ class Fighter:
 		self.base_type_die = type_die
 		self.base_mod_die = mod_die
 		self.base_defense = defense
+		self.speed = speed
 		self.xp = xp
 
 	@property
@@ -35,7 +36,7 @@ class Fighter:
 	@property
 	def num_die(self):
 		if self.owner and self.owner.equipment:
-			bonus = self.owner.equipment.num_die_bonus
+			bonus = self.owner.equipment.num_die_bonus + int((self.speed+self.owner.equipment.speed_bonus) / 3)
 		else:
 			bonus = 0	
 		return self.base_num_die + bonus

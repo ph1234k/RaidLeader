@@ -22,7 +22,7 @@ class GameMap:
 		self.tiles = self.initialize_tiles()
 		self.dungeon_level = dungeon_level
 		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table()
-		self.item_chances, self.item_table = ItemGen().gen_item_table(self.dungeon_level)
+		self.item_chances, self.item_table = ItemGen(self.dungeon_level).gen_item_table()
 
 	def initialize_tiles(self):
 		tiles = [[Tile(True) for y in range(self.height)] for x in range(self.width)]
@@ -122,7 +122,7 @@ class GameMap:
 	def next_floor(self, player, message_log, constants):
 		self.dungeon_level += 1
 		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table()
-		self.item_chances, self.item_table = ItemGen().gen_item_table(self.dungeon_level)
+		self.item_chances, self.item_table = ItemGen(self.dungeon_level).gen_item_table()
 		entities = [player]
 
 		self.tiles = self.initialize_tiles()

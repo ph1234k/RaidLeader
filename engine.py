@@ -177,10 +177,12 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			elif level_up == 'def':
 				player.fighter.base_defense += 1
 			elif level_up == 'str':
-				if roll(1, 3) == 3:
-					player.fighter.base_num_die += 1 + roll(1, 3)
-					player.fighter.base_type_die += 1 + roll(1, 3)
+				#if roll(1, 3) == 3:
+				#	player.fighter.base_num_die += 1 + roll(1, 3)
+				#	player.fighter.base_type_die += 1 + roll(1, 3)
 				player.fighter.base_mod_die += 1
+			elif level_up == 'spd':
+				player.fighter.speed += 1
 			game_state = GameState.ENEMY_TURN
 
 		if game_state == GameState.TARGETING:
@@ -249,7 +251,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			if consume_corpse:
 				player.fighter.take_damage(-50)
 				message_log.add_message(Message('You eat the {0} and gain some strength.'.format(consume_corpse.name)))
-				player.fighter.base_defense += consume_corpse.defense
+				player.fighter.base_max_hp += 1
 				entities.remove(consume_corpse)
 				game_state = GameState.ENEMY_TURN
 			if xp:
