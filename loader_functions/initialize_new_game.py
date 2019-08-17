@@ -65,7 +65,7 @@ def get_constants():
 
 def get_game_variables(constants):
 	player = Entity(0, 0, '@', libtcod.pink, "Player", blocks=True, render_order=RenderOrder.ACTOR, 
-		fighter=Fighter(hp=100, num_die=2, type_die=4, mod_die=6, defense=10), inventory=Inventory(52), level=Level(), equipment=Equipment())
+		fighter=Fighter(hp=100, num_die=2, type_die=4, mod_die=6, defense=20), inventory=Inventory(52), level=Level(), equipment=Equipment())
 	entities = [player]
 	starting_dagger = Entity(0, 0, '-', libtcod.sky, 'Dagger', equippable=Equippable(EquipmentSlots.WEAPON, num_die_bonus=1, type_die_bonus=4), render_order=RenderOrder.ITEM)
 	player.inventory.add_item(starting_dagger)

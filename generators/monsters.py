@@ -63,11 +63,11 @@ class MonsterGen:
 	def gen_monster(self, CR):
 		# Roll base stats
 		monster = MonsterPart()
-		monster.hp = roll(5, CR + 5)
-		monster.defense = roll(1, CR)
-		monster.num_die = int(CR/3)
-		monster.type_die = roll(1, CR)
-		monster.mod_die = roll(1, CR)
+		monster.hp = roll(5+CR, CR * 50) + 75
+		monster.defense = from_dungeon_level([[roll(CR, CR*2) + CR, 5]], self.dungeon_level) 
+		monster.num_die = from_dungeon_level([[int(CR/3) + roll(1, CR), 9]], self.dungeon_level)
+		monster.type_die = CR
+		monster.mod_die = from_dungeon_level([[roll(1, CR) + CR, 5]], self.dungeon_level)
 		monster.xp = CR * 25
 		choice1 = self.tier1[random_choice_from_dict(self.tier1_chances)]
 		choice2 = self.tier2[random_choice_from_dict(self.tier2_chances)]

@@ -46,14 +46,13 @@ def handle_keys_player_turn(key):
         return {'wait': True}
     elif key_char == 'e':
         return {'eat': True}
+    elif key.vk == libtcod.KEY_ENTER and key.lalt:
+        # Alt+Enter: toggle full screen
+        return {'fullscreen': True}
     elif key.vk == libtcod.KEY_ENTER or (key_char == '.'):
         return {'take_stairs': True}
     elif key_char == 'c':
         return {'show_character_screen': True}
-
-    if key.vk == libtcod.KEY_ENTER and key.lalt:
-        # Alt+Enter: toggle full screen
-        return {'fullscreen': True}
 
     elif key.vk == libtcod.KEY_ESCAPE:
         # Exit the game

@@ -56,8 +56,8 @@ class ItemGen:
 		self.armor_attribute_chances = {'light': 5, 'heavy': 5, 'blessed': 5}
 		self.armor_material = {
 			'leather': ItemPart(name='leather', color=libtcod.Color(165, 42, 42), equippable=Equippable(None, max_hp_bonus=10, defense_bonus=1)),
-			'copper': ItemPart(name='copper', color=libtcod.Color(204, 118, 0), equippable=Equippable(None, max_hp_bonus=25, defense_bonus=2)),
-			'silver': ItemPart(name='silver', color=libtcod.Color(192, 192, 192), equippable=Equippable(None, max_hp_bonus=50, defense_bonus=5))
+			'copper': ItemPart(name='copper', color=libtcod.red, equippable=Equippable(None, max_hp_bonus=25, defense_bonus=2)),
+			'silver': ItemPart(name='silver', color=libtcod.white, equippable=Equippable(None, max_hp_bonus=50, defense_bonus=5))
 		}
 		self.armor_material_chances = {'leather': 5, 'copper': 5, 'silver': 5}
 		self.armor_type = {
@@ -77,8 +77,8 @@ class ItemGen:
 		} 
 		self.jewelery_attribute_chances = {'speed': 5, 'health': 5, 'defense': 5, 'bigweapon': 5, 'damage': 5}
 		self.jewelery_material = {
-			'copper': ItemPart(name='copper', color=libtcod.Color(204, 118, 0), equippable=Equippable(None, defense_bonus=1)),
-			'silver': ItemPart(name='silver', color=libtcod.Color(192, 192, 192), equippable=Equippable(None, defense_bonus=10))
+			'copper': ItemPart(name='copper', color=libtcod.red, equippable=Equippable(None, defense_bonus=1)),
+			'silver': ItemPart(name='silver', color=libtcod.white, equippable=Equippable(None, defense_bonus=10))
 		}
 		self.jewelery_material_chances = {'copper': 5, 'silver': 5}
 		self.jewelery_type = {
