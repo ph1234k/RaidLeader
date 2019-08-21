@@ -65,7 +65,7 @@ def level_up_menu(con, header, player, menu_width, screen_width, screen_height):
 	options = ['Health. New HP: {0}'.format(player.fighter.max_hp+20),
 		'Defense. New Defense: {0}'.format(player.fighter.defense+1),
 		'Power. New Damage: {0}d{1} + {2}'.format(player.fighter.num_die,player.fighter.type_die,player.fighter.mod_die+1),
-		'Speed. New Speed: {0}'.format(player.fighter.speed)]
+		'Speed. New Speed: {0}'.format(player.fighter.speed + 1)]
 
 	menu(con, header, options, menu_width, screen_width, screen_height)
 
@@ -83,7 +83,7 @@ def character_screen(player, character_screen_width, character_screen_height, sc
     libtcod.console_print_rect_ex(window, 0, 4, character_screen_width, character_screen_height, libtcod.BKGND_NONE,
                                   libtcod.LEFT, 'Experience to Level: {0}'.format(player.level.experience_to_next_level))
     libtcod.console_print_rect_ex(window, 0, 6, character_screen_width, character_screen_height, libtcod.BKGND_NONE,
-                                  libtcod.LEFT, 'Maximum HP: {0}'.format(player.fighter.max_hp))
+                                  libtcod.LEFT, ''.join(('Maximum HP: {0} (',chr(libtcod.COLCTRL_1),'{1}',chr(libtcod.COLCTRL_STOP),')')).format(player.fighter.base_max_hp, player.fighter.max_hp))
     libtcod.console_print_rect_ex(window, 0, 7, character_screen_width, character_screen_height, libtcod.BKGND_NONE,
                                   libtcod.LEFT, 'Attack: {0}d{1}+{2}'.format(player.fighter.num_die, player.fighter.type_die, player.fighter.mod_die))
     libtcod.console_print_rect_ex(window, 0, 8, character_screen_width, character_screen_height, libtcod.BKGND_NONE,

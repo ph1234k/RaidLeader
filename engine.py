@@ -77,6 +77,11 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 	mouse = libtcod.Mouse()
 	previous_game_state = game_state
 	targeting_item = None
+	libtcod.console_set_color_control(libtcod.COLCTRL_1, libtcod.cyan, (1, 1, 1))
+	libtcod.console_set_color_control(libtcod.COLCTRL_2, libtcod.green, (1, 1, 1))
+	libtcod.console_set_color_control(libtcod.COLCTRL_3, libtcod.yellow, (1, 1, 1))
+	libtcod.console_set_color_control(libtcod.COLCTRL_4, libtcod.orange, (1, 1, 1))
+	libtcod.console_set_color_control(libtcod.COLCTRL_5, libtcod.red, (1, 1, 1))
 
 	while not libtcod.console_is_window_closed():
 		libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
@@ -103,6 +108,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 		eat = action.get('eat')
 		level_up = action.get('level_up')
 		show_character_screen = action.get('show_character_screen')
+		toggle_invis = action.get('toggle_invis')
 
 		left_click = mouse_action.get('left_click')
 		right_click = mouse_action.get('right_click')
@@ -199,6 +205,9 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			previous_game_state = game_state
 			game_state = GameState.CHARACTER_SCREEN
 
+		if toggle_invis:
+			player.fighter.toggle_invis()
+
 		if exit:
 			if game_state in (GameState.SHOW_INVENTORY, GameState.DROP_INVENTORY, GameState.CHARACTER_SCREEN):
 				game_state = previous_game_state
@@ -249,9 +258,9 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 				game_state = previous_game_state
 				message_log.add_message(Message('Targeting has been cancelled.'))
 			if consume_corpse:
-				player.fighter.take_damage(-50)
 				message_log.add_message(Message('You eat the {0} and gain some strength.'.format(consume_corpse.name)))
 				player.fighter.base_max_hp += 1
+				player.fighter.take_damage(-50)
 				entities.remove(consume_corpse)
 				game_state = GameState.ENEMY_TURN
 			if xp:

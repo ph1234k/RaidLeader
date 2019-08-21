@@ -38,6 +38,8 @@ def handle_keys_player_turn(key):
     # Various keybindings
     if key_char == 'g':
         return {'pickup': True}
+    elif key_char == 'i' and key.shift:
+        return {'toggle_invis': True}
     elif key_char == 'i':
         return {'show_inventory': True}
     elif key_char == 'd':

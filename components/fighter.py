@@ -16,6 +16,7 @@ class Fighter:
 		self.base_defense = defense
 		self.speed = speed
 		self.xp = xp
+		self.invis = False
 
 	@property
 	def max_hp(self):
@@ -79,3 +80,9 @@ class Fighter:
 			results.append({'message': Message('{0} hit {1}, but did no damage.'.format(self.owner.name.capitalize(), target.name), libtcod.white)})
 
 		return results
+
+	def toggle_invis(self):
+		if self.invis == True:
+			self.invis = False
+		else:
+			self.invis = True

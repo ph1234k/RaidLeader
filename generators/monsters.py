@@ -6,12 +6,18 @@ class MonsterGen:
 	def __init__(self, dungeon_level):
 		self.dungeon_level = dungeon_level
 		self.tier1 = {
-			'angry': MonsterPart(color=libtcod.red, name='angry', defense=-1, mod_die=5, xp=10),
-			'berserk': MonsterPart(color=libtcod.orange, name='berserk', defense=-5, num_die=3, mod_die=5, xp=50),
+			'angry': MonsterPart(color=libtcod.red, 
+				name=''.join((chr(libtcod.COLCTRL_5) , 'angry', chr(libtcod.COLCTRL_STOP))), 
+				defense=-1, mod_die=5, xp=10),
+			'berserk': MonsterPart(color=libtcod.orange, 
+				name=''.join((chr(libtcod.COLCTRL_4), 'berserk', chr(libtcod.COLCTRL_STOP))), 
+				defense=-5, num_die=3, mod_die=5, xp=50),
 			'drowsy': MonsterPart(color=libtcod.blue, name='drowsy', hp=50, defense=5, xp=10),
 			'rotting': MonsterPart(color=libtcod.black, name='rotting', hp=-10, defense=-1, mod_die=10, type_die=1, xp=50),
 			'quick': MonsterPart(color=libtcod.violet, name='quick', num_die=2, xp=20),
-			'lucky': MonsterPart(color=libtcod.green, name='lucky', xp=777),
+			'lucky': MonsterPart(color=libtcod.green, 
+				name=''.join((chr(libtcod.COLCTRL_2),'lucky',chr(libtcod.COLCTRL_STOP))),
+				xp=777),
 			'deadly': MonsterPart(color=libtcod.light_cyan, name='deadly', num_die=2, type_die=6, mod_die=5, xp=5000, hp=50, defense=25)
 		}
 		self.tier1_chances = {'angry': 3, 'berserk': 3, 'drowsy': 3, 'rotting': 3, 'quick': 3, 'lucky': 1, 'deadly': from_dungeon_level([[1, 5]], self.dungeon_level)}
@@ -73,7 +79,7 @@ class MonsterGen:
 		choice2 = self.tier2[random_choice_from_dict(self.tier2_chances)]
 		choice3 = self.tier3[random_choice_from_dict(self.tier3_chances)]
 		monster.color = choice1.color
-		monster.name = choice1.name + ' ' + choice2.name + ' ' + choice3.name
+		monster.name = ''.join((choice1.name , ' ' , choice2.name , ' ' , choice3.name))
 		monster.char = choice2.char
 		monster.hp = monster.hp + choice1.hp + choice2.hp + choice3.hp
 		monster.defense = monster.defense + choice1.defense + choice2.defense + choice3.defense

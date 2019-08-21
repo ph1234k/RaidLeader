@@ -30,9 +30,12 @@ class ItemGen:
 		self.item_chances = {'healing potion': 75, 'fireball scroll': 10, 'lightning scroll': 5, 'confusion scroll': 5}
 		
 		self.weapon_attribute = {
-			'broken': ItemPart(name='broken', color=libtcod.dark_red, equippable=Equippable(None, mod_die_bonus=-2)),
-			'pristine': ItemPart(name='pristine', color=libtcod.yellow, equippable=Equippable(None, mod_die_bonus=1)),
-			'blessed': ItemPart(name='blessed', color=libtcod.pink, equippable=Equippable(None, mod_die_bonus=3)),
+			'broken': ItemPart(name=''.join((chr(libtcod.COLCTRL_4),'broken',chr(libtcod.COLCTRL_STOP))), 
+				color=libtcod.dark_red, equippable=Equippable(None, mod_die_bonus=-2)),
+			'pristine': ItemPart(name=''.join((chr(libtcod.COLCTRL_1),'pristine',chr(libtcod.COLCTRL_STOP))), 
+				color=libtcod.yellow, equippable=Equippable(None, mod_die_bonus=1)),
+			'blessed': ItemPart(name=''.join((chr(libtcod.COLCTRL_2),'blessed',chr(libtcod.COLCTRL_STOP))), 
+				color=libtcod.pink, equippable=Equippable(None, mod_die_bonus=3)),
 			'basic': ItemPart(name='', color=libtcod.white, equippable=Equippable(None))
 		}
 		self.weapon_attribute_chances = {'broken': 4, 'pristine': 4, 'blessed': 1, 'basic': 8}
@@ -112,7 +115,7 @@ class ItemGen:
 			new_equipment = ItemPart()
 			extra_mod_die_damage = roll(1 + int(dungeon_level / 3), 3+dungeon_level)
 			new_equipment.char = t2.char
-			new_equipment.name = '+' + str(extra_mod_die_damage) + ' ' + t1.name + ' ' + t3.name + ' ' + t2.name
+			new_equipment.name = ''.join((chr(libtcod.COLCTRL_1),'+',str(extra_mod_die_damage),chr(libtcod.COLCTRL_STOP),' ',t1.name,' ',t3.name,' ',t2.name))
 			new_equipment.color = t1.color
 			new_equipment.item = Item()
 			new_equipment.equippable = Equippable(slot=t2.equippable.slot,
@@ -130,7 +133,7 @@ class ItemGen:
 			extra_defense = roll(1+int(dungeon_level/3), 3+dungeon_level)
 			uniqify = str(roll(300, 300))
 			new_equipment = ItemPart()
-			new_equipment.name = '+' + str(extra_defense) + ' ' + attrib.name + ' ' + mat.name + ' ' + arm_type.name
+			new_equipment.name = ''.join((chr(libtcod.COLCTRL_1),'+',str(extra_defense),chr(libtcod.COLCTRL_STOP),' ',attrib.name,' ',mat.name,' ',arm_type.name))
 			new_equipment.char = arm_type.char
 			new_equipment.color = mat.color
 			new_equipment.item = Item()
@@ -149,7 +152,7 @@ class ItemGen:
 			uniqify = str(roll(300, 300))
 			extra_hp = roll(1+int(dungeon_level/3), 3+dungeon_level) * 10
 			new_equipment = ItemPart()
-			new_equipment.name = '+' + str(extra_hp) + ' ' +mat.name + ' ' + jew_type.name + ' ' + attrib.name
+			new_equipment.name = ''.join((chr(libtcod.COLCTRL_1),'+' , str(extra_hp) , chr(libtcod.COLCTRL_STOP) , ' ' ,mat.name , ' ' , jew_type.name , ' ' , attrib.name))
 			new_equipment.char = jew_type.char
 			new_equipment.color = mat.color
 			new_equipment.item = Item()
