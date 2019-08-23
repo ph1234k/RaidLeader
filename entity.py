@@ -79,10 +79,10 @@ class Entity:
 			# Scan all the objects to see if there are objects that must be navigated around
 			# Check also that the object isn't self or the target (so that the start and the end points are free)
 			# The AI class handles the situation if self is next to the target so it will not use this A* function anyway
-			for entity in entities:
-				if entity.blocks and entity != self and entity != target:
-					# Set the tile as a wall so it must be navigated around
-					libtcod.map_set_properties(fov, entity.x, entity.y, True, False)
+			#for entity in entities:
+			#	if entity.blocks and entity != self and entity != target:
+			#		# Set the tile as a wall so it must be navigated around
+			#		libtcod.map_set_properties(fov, entity.x, entity.y, True, False)
 
 			# Allocate a A* path
 			# The 1.41 is the normal diagonal cost of moving, it can be set as 0.0 if diagonal moves are prohibited
@@ -94,10 +94,10 @@ class Entity:
 			# Check if the path exists, and in this case, also the path is shorter than 25 tiles
 			# The path size matters if you want the monster to use alternative longer paths (for example through other rooms) if for example the player is in a corridor
 			# It makes sense to keep path size relatively low to keep the monsters from running around the map if there's an alternative path really far away
-			if not libtcod.path_is_empty(my_path) and libtcod.path_size(my_path) < 25:
+			if not libtcod.path_is_empty(my_path) and libtcod.path_size(my_path) < 100:
 				# Find the next coordinates in the computed full path
 				x, y = libtcod.path_walk(my_path, True)
-				if x or y:
+				if (x or y) and ((target.x, target.y) != (x, y)):
 					# Set self's coordinates to the next path tile
 					self.x = x
 					self.y = y

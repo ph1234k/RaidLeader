@@ -2,7 +2,7 @@ import tcod as libtcod
 from random import randint
 
 from entity import Entity
-from components.ai import BasicMonster
+from components.ai import BasicMonster, SwarmMonster
 from components.fighter import Fighter
 from components.item import Item
 from components.item_functions import heal, cast_lightning, cast_fireball, cast_confuse
@@ -17,12 +17,12 @@ from game_messages import Message
 from math import sqrt
 
 class GameMap:
-	def __init__(self, width, height, dungeon_level=1):
+	def __init__(self, width, height, entities, dungeon_level=1):
 		self.width = width
 		self.height = height
 		self.tiles = self.initialize_tiles()
 		self.dungeon_level = dungeon_level
-		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table()
+		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table(entities)
 		self.item_chances, self.item_table = ItemGen(self.dungeon_level).gen_item_table()
 		self.north, self.south, self.east, self.west = (0, -1), (0, 1), (1, 0), (-1, 0)
 		self.winding_percent = 30
@@ -281,7 +281,11 @@ class GameMap:
 			y = randint(room.y1 + 1, room.y2 - 1)
 			if not any([entity for entity in entities if entity.x == x and entity.y == y]):
 				mon_template = self.monster_table[random_choice_from_dict(self.monster_chances)]
-				monster = Entity(x, y, mon_template.char, mon_template.color, mon_template.name, blocks=True, render_order=RenderOrder.ACTOR, ai=BasicMonster(),
+				if mon_template.ai_type == 'swarm':
+					new_ai = SwarmMonster(entities)
+				else:
+					new_ai = BasicMonster()
+				monster = Entity(x, y, mon_template.char, mon_template.color, mon_template.name, blocks=True, render_order=RenderOrder.ACTOR, ai=new_ai,
 						fighter=Fighter(hp=mon_template.hp, num_die=mon_template.num_die, type_die=mon_template.type_die, mod_die=mon_template.mod_die, defense=mon_template.defense, xp=mon_template.xp))
 				entities.append(monster)
 		for i in range(number_of_items):
@@ -302,10 +306,10 @@ class GameMap:
 		return False
 
 	def next_floor(self, player, message_log, constants):
-		self.dungeon_level += 1
-		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table()
-		self.item_chances, self.item_table = ItemGen(self.dungeon_level).gen_item_table()
 		entities = [player]
+		self.dungeon_level += 1
+		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table(entities)
+		self.item_chances, self.item_table = ItemGen(self.dungeon_level).gen_item_table()
 
 		self.tiles = self.initialize_tiles()
 		self.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)

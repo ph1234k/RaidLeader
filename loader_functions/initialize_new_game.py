@@ -70,7 +70,7 @@ def get_game_variables(constants):
 	starting_dagger = Entity(0, 0, '-', libtcod.sky, 'Dagger', equippable=Equippable(EquipmentSlots.WEAPON, num_die_bonus=1, type_die_bonus=4), render_order=RenderOrder.ITEM)
 	player.inventory.add_item(starting_dagger)
 	player.equipment.toggle_equip(starting_dagger)
-	game_map = GameMap(constants['map_width'], constants['map_height'])
+	game_map = GameMap(constants['map_width'], constants['map_height'], entities)
 	game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)
 	message_log = MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])
 	game_state = GameState.PLAYER_TURN

@@ -1,5 +1,6 @@
 import tcod as libtcod
 from dice import roll, random_choice_from_dict, from_dungeon_level
+from components.ai import BasicMonster, SwarmMonster
 
 class MonsterGen:
 
@@ -27,9 +28,10 @@ class MonsterGen:
 			'rat': MonsterPart(char='r', name='rat', hp=5, num_die=1, type_die=3, xp=10),
 			'orc': MonsterPart(char='O', name='orc', hp=50, num_die=1, type_die=8, defense=5, xp=150),
 			'dragon': MonsterPart(char='D', name='dragon', hp=100, num_die=4, type_die=6, mod_die=5, defense=15, xp=200),
-			'snorklefarker': MonsterPart(char='S', name='snorklefarker', hp=1000, num_die=8, type_die=12, mod_die=8, defense=100, xp=5000, chance_table=-5)
+			'snorklefarker': MonsterPart(char='S', name='snorklefarker', hp=1000, num_die=8, type_die=12, mod_die=8, defense=100, xp=5000, chance_table=-5),
+			'ant': MonsterPart(char='a', name='ant', hp=10, num_die=4, type_die=3, defense=10, ai_type='swarm')
 		}
-		self.tier2_chances = {'zombie': 6, 'kobold': 6, 'rat': 6, 'orc': 4, 'dragon': from_dungeon_level([[2, 5]], self.dungeon_level), 'snorklefarker': from_dungeon_level([[1, 10]], self.dungeon_level)}
+		self.tier2_chances = {'ant': 24, 'zombie': 6, 'kobold': 6, 'rat': 6, 'orc': 4, 'dragon': from_dungeon_level([[2, 5]], self.dungeon_level), 'snorklefarker': from_dungeon_level([[1, 10]], self.dungeon_level)}
 		self.tier3 = {
 			'warrior': MonsterPart(name='warrior', defense=1, hp=2, mod_die=1),
 			'obliterator': MonsterPart(name='obliterator', mod_die=10, xp=25),
@@ -39,7 +41,7 @@ class MonsterGen:
 		}
 		self.tier3_chances = {'warrior': 2, 'obliterator': 2, 'worshipper': 2, 'basic': 4, 'demigod': from_dungeon_level([[1, 10]], self.dungeon_level)}
 
-	def gen_monster_table(self):
+	def gen_monster_table(self, entities):
 		# Returns two dictionaries
 		# One is a lookup of weights for use in random_choice_from_dict
 		# The other contains the data needed to place each monster
@@ -60,13 +62,13 @@ class MonsterGen:
 		num_uniq_mons = roll(1, (roll(2, 3)+1)) + 2
 		while len(monster_table) < num_uniq_mons:
 			CR = roll(1, 3) * self.dungeon_level
-			new_mon = self.gen_monster(CR)
+			new_mon = self.gen_monster(CR, entities)
 			uniqify = str(roll(300, 300) + CR)
 			monster_table[new_mon.name + uniqify] = new_mon
 			monster_chances[new_mon.name + uniqify] = 10 + new_mon.chance_table
 		return monster_chances, monster_table
 
-	def gen_monster(self, CR):
+	def gen_monster(self, CR, entities):
 		# Roll base stats
 		monster = MonsterPart()
 		monster.hp = roll(5+CR, CR * 50) + 75
@@ -88,11 +90,12 @@ class MonsterGen:
 		monster.mod_die = monster.mod_die + choice1.mod_die + choice2.mod_die + choice3.mod_die
 		monster.xp = monster.xp + choice1.xp + choice2.xp + choice3.xp
 		monster.chance_table = choice1.chance_table + choice2.chance_table + choice3.chance_table
+		monster.ai_type = choice2.ai_type
 		return monster
 
 class MonsterPart:
 
-	def __init__(self, char=None, color=None, name='', hp=0, defense=0, num_die=0, type_die=0, mod_die=0, xp=0, chance_table=0):
+	def __init__(self, char=None, color=None, name='', hp=0, defense=0, num_die=0, type_die=0, mod_die=0, xp=0, chance_table=0, ai=BasicMonster(), ai_type='basic'):
 		self.char = char
 		self.color = color
 		self.name = name
@@ -103,3 +106,5 @@ class MonsterPart:
 		self.mod_die = mod_die
 		self.xp = xp
 		self.chance_table = chance_table
+		self.ai = ai
+		self.ai_type = ai_type
