@@ -31,7 +31,7 @@ class MonsterGen:
 			'snorklefarker': MonsterPart(char='S', name='snorklefarker', hp=1000, num_die=8, type_die=12, mod_die=8, defense=100, xp=5000, chance_table=-5),
 			'ant': MonsterPart(char='a', name='ant', hp=10, num_die=4, type_die=3, defense=10, ai_type='swarm')
 		}
-		self.tier2_chances = {'ant': 24, 'zombie': 6, 'kobold': 6, 'rat': 6, 'orc': 4, 'dragon': from_dungeon_level([[2, 5]], self.dungeon_level), 'snorklefarker': from_dungeon_level([[1, 10]], self.dungeon_level)}
+		self.tier2_chances = {'ant': from_dungeon_level([[24, 5]], self.dungeon_level), 'zombie': 6, 'kobold': 6, 'rat': 6, 'orc': 4, 'dragon': from_dungeon_level([[2, 5]], self.dungeon_level), 'snorklefarker': from_dungeon_level([[1, 10]], self.dungeon_level)}
 		self.tier3 = {
 			'warrior': MonsterPart(name='warrior', defense=1, hp=2, mod_die=1),
 			'obliterator': MonsterPart(name='obliterator', mod_die=10, xp=25),

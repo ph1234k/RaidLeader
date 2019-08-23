@@ -22,4 +22,8 @@ You can use the arrow keys or VIM keys to move around.
 "i" for inventory
 "d" for dropping an item
 "g" for picking up an item
+"e" for eating corpses
+"." to wait
+"c" for character screen
+"ESC" to save and quit
 To use an item, open the inventory and then press the appropraite key that represents the item you wish to use. 

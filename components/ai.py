@@ -97,11 +97,16 @@ class SwarmMonster:
 					results.extend(monster.fighter.attack(target))
 			else:
 				#target = entities[roll(1, len(entities)-1)]
-				monster.move_astar(self.queen, entities, game_map)
+				if monster.distance_to(target) >= 2:
+					monster.move_astar(self.queen, entities, game_map)
+				else:
+					pass
 		else:
 			#target = entities[roll(1, len(entities)-1)]
-			monster.move_astar(self.queen, entities, game_map)
-
+			if monster.distance_to(target) >= 2:
+				monster.move_astar(self.queen, entities, game_map)
+			else:
+				pass
 		return results
 
 	def take_turn_queen(self, target, fov_map, game_map, entities):

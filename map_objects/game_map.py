@@ -12,6 +12,7 @@ from generators.monsters import MonsterGen
 from generators.items import ItemGen
 from map_objects.tile import Tile
 from map_objects.rectangle import Rect
+from map_objects.prefab import PFRoom, PFDiningHall
 from render_functions import RenderOrder
 from game_messages import Message
 from math import sqrt
@@ -25,8 +26,8 @@ class GameMap:
 		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table(entities)
 		self.item_chances, self.item_table = ItemGen(self.dungeon_level).gen_item_table()
 		self.north, self.south, self.east, self.west = (0, -1), (0, 1), (1, 0), (-1, 0)
-		self.winding_percent = 30
-		self.connection_chance = 25
+		self.winding_percent = 40
+		self.connection_chance = 16
 
 	def initialize_tiles(self):
 		tiles = [[Tile(True) for y in range(self.height)] for x in range(self.width)]
@@ -50,12 +51,21 @@ class GameMap:
 			x = (randint(0, map_width - w - 1)//2)*2+1
 			y = (randint(0, map_height - h - 1)//2)*2+1
 
-			new_room = Rect(x, y, w, h)
+			if roll(1, 100) > 10:
+				new_room = Rect(x, y, w, h)
+				prefab = False
+			else:
+				if roll(1, 100) > 50: 
+					new_room = PFRoom(x, y)
+				else:
+					new_room = PFDiningHall(x, y)
+				prefab=True
+
 			for other_room in rooms:
 				if new_room.intersect(other_room):
 					break
 			else:
-				self.create_room(new_room)
+				self.create_room(new_room, prefab)
 				(new_x, new_y) = new_room.center()
 				center_of_last_room_x = new_x
 				center_of_last_room_y = new_y
@@ -77,10 +87,24 @@ class GameMap:
 				self.add_maze(start, map_width, map_height)
 		self.connect_regions(map_width, map_height)
 		self.remove_dead_ends(map_width, map_height)
-#		if not self.is_path_to(player, down_stairs, entities):
-#			self.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities)
+		if not self.is_path_to(player, down_stairs, entities):
+			return False
+			entities.remove(down_stairs)
+		else:
+			return True
+	def create_room(self, room, prefab=False):
+		# check for prefab
+		if prefab:
+			for x in range(room.x1, room.x2-1):
+				for y in range(room.y1, room.y2-1):
+					#print(room.x1, room.y1)
+					#print(room.x2, room.y2)
+					#print(x, y)
+					if room.cells[x-room.x1][y-room.y1] == 1:
+						if x < self.width and y < self.height:
+							self.carve(x, y)	
+			return		
 
-	def create_room(self, room):
 		# Go through the tiles in room and make them passable
 		for x in range(room.x1 + 1, room.x2):
 			for y in range(room.y1 + 1, room.y2):
@@ -300,6 +324,8 @@ class GameMap:
 				entities.append(item)
 
 	def is_blocked(self, x, y):
+		if x >= self.width or y >= self.height or x < 0 or y < 0:
+			return True
 		if self.tiles[x][y].blocked:
 			return True
 
@@ -312,8 +338,9 @@ class GameMap:
 		self.item_chances, self.item_table = ItemGen(self.dungeon_level).gen_item_table()
 
 		self.tiles = self.initialize_tiles()
-		self.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)
-
+		succeed = self.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)
+		if not succeed:
+			return False
 		message_log.add_message(Message('Welcome to floor {0}'.format(self.dungeon_level), libtcod.light_cyan))
 
 		return entities

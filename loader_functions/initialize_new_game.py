@@ -28,16 +28,17 @@ def get_constants():
 	room_max_size = 10
 	room_min_size = 6
 	max_rooms = 10
+#	max_rooms = 200
 
 	fov_algorithm = 0
 	fov_light_walls = True
 	fov_radius = 10
 
 	colors = {
-		'dark_wall': libtcod.Color(80, 80, 80),
+		'dark_wall': libtcod.Color(20, 20, 20),
 		'dark_ground': libtcod.Color(140, 120, 100),
-		'light_wall': libtcod.Color(130, 130, 130),
-		'light_ground': libtcod.Color(200, 180, 140)
+		'light_wall': libtcod.Color(90, 90, 90),
+		'light_ground': libtcod.Color(210, 190, 150)
 	}
 
 	constants = {
@@ -71,7 +72,10 @@ def get_game_variables(constants):
 	player.inventory.add_item(starting_dagger)
 	player.equipment.toggle_equip(starting_dagger)
 	game_map = GameMap(constants['map_width'], constants['map_height'], entities)
-	game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)
+	map_make_success = game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)
+	while not map_make_success:
+		game_map = GameMap(constants['map_width'], constants['map_height'], entities)
+		map_make_success = game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)
 	message_log = MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])
 	game_state = GameState.PLAYER_TURN
 	

@@ -169,6 +169,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 			for entity in entities:
 				if entity.stairs and entity.x == player.x and entity.y == player.y:
 					entities = game_map.next_floor(player, message_log, constants)
+					while not entities:
+						entities = game_map.next_floor(player, message_log, constants)
 					fov_map = initialize_fov(game_map)
 					fov_recompute = True
 					libtcod.console_clear(con)
