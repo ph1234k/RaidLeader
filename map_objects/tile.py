@@ -11,3 +11,5 @@ class Tile:
 
 		self.block_sight = block_sight
 		self.explored = False
+		#self.explored = True
+		self.region = 0

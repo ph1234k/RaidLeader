@@ -1,6 +1,8 @@
 import tcod as libtcod
 from random import randint
 from game_messages import Message
+from entity import Entity
+from dice import roll
 
 class BasicMonster:
 	def take_turn(self, target, fov_map, game_map, entities):
@@ -13,6 +15,12 @@ class BasicMonster:
 					monster.move_astar(target, entities, game_map)
 				elif target.fighter.hp > 0:
 					results.extend(monster.fighter.attack(target))
+			else:
+				#target = entities[roll(1, len(entities)-1)]
+				monster.move_towards((roll(1, 3)-2+monster.x), (roll(1, 3)-2+monster.y) , game_map, entities)
+		else:
+			#target = entities[roll(1, len(entities)-1)]
+			monster.move_towards((roll(1, 3)-2+monster.x), (roll(1, 3)-2+monster.y) , game_map, entities)
 
 		return results
 
