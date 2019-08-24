@@ -12,7 +12,7 @@ from generators.monsters import MonsterGen
 from generators.items import ItemGen
 from map_objects.tile import Tile
 from map_objects.rectangle import Rect
-from map_objects.prefab import PFRoom, PFDiningHall
+from map_objects.prefab import PFRoom, PFBigRoom, PFDiningHall
 from render_functions import RenderOrder
 from game_messages import Message
 from math import sqrt
@@ -26,8 +26,8 @@ class GameMap:
 		self.monster_chances, self.monster_table = MonsterGen(self.dungeon_level).gen_monster_table(entities)
 		self.item_chances, self.item_table = ItemGen(self.dungeon_level).gen_item_table()
 		self.north, self.south, self.east, self.west = (0, -1), (0, 1), (1, 0), (-1, 0)
-		self.winding_percent = 40
-		self.connection_chance = 16
+		self.winding_percent = 35
+		self.connection_chance = 20
 
 	def initialize_tiles(self):
 		tiles = [[Tile(True) for y in range(self.height)] for x in range(self.width)]
@@ -50,16 +50,27 @@ class GameMap:
 			h = randint(room_min_size, room_max_size)
 			x = (randint(0, map_width - w - 1)//2)*2+1
 			y = (randint(0, map_height - h - 1)//2)*2+1
+			if x % 2 != 0:
+				x += 1
+			if y % 2 != 0:
+				y += 1
 
 			if roll(1, 100) > 10:
 				new_room = Rect(x, y, w, h)
 				prefab = False
 			else:
-				if roll(1, 100) > 50: 
+				pf_picker = roll(1, 100)
+				if pf_picker < 20: 
 					new_room = PFRoom(x, y)
-				else:
+				elif pf_picker < 40:
 					new_room = PFDiningHall(x, y)
-				prefab=True
+				elif pf_picker < 101:
+					new_room = PFBigRoom(x, y)
+				if new_room.x2 > map_width or new_room.y2 > map_height:
+					new_room = Rect(x, y, w, h)
+					prefab = False
+				else:
+					prefab=True
 
 			for other_room in rooms:
 				if new_room.intersect(other_room):
@@ -79,12 +90,14 @@ class GameMap:
 		down_stairs = Entity(center_of_last_room_x, center_of_last_room_y, '>', libtcod.white, 'Stairs', render_order=RenderOrder.STAIRS,
 			stairs=Stairs(self.dungeon_level + 1))
 		entities.append(down_stairs)
-		for y in range(1, map_height, 2):
-			for x in range(1, map_width, 2):
+		#for y in range(1, map_height, 14):
+		for y in range(3, map_height, 2):
+			for x in range(3, map_width, 2):
 				if self.tiles[x][y].blocked == False:
 					continue
 				start = (x, y)
 				self.add_maze(start, map_width, map_height)
+				break
 		self.connect_regions(map_width, map_height)
 		self.remove_dead_ends(map_width, map_height)
 		if not self.is_path_to(player, down_stairs, entities):
@@ -92,6 +105,7 @@ class GameMap:
 			entities.remove(down_stairs)
 		else:
 			return True
+
 	def create_room(self, room, prefab=False):
 		# check for prefab
 		if prefab:
@@ -237,21 +251,42 @@ class GameMap:
 
 	def remove_dead_ends(self, map_width, map_height):
 		done = False
-		emergency = 100
+		emergency = 500
 		while not done:
+			#print('loop iter: ', 99 - emergency)
 			to_remove = [[0 for y in range(map_height)] for x in range(map_width)]
 			done = True
 			for y in range(map_height):
 				for x in range(map_width):
-					for direction in [self.north, self.south, self.east, self.west]:
-						if self.tiles[x+direction[0]][y+direction[1]].blocked == True: 
-							to_remove[x][y] += 1
+					if self.tiles[x][y].blocked == False:
+						for direction in [self.north, self.south, self.east, self.west]:
+							if self.tiles[x+direction[0]][y+direction[1]].blocked == True: 
+								to_remove[x][y] += 1
 					if to_remove[x][y] > 2:
 						self.tiles[x][y].blocked = True
 						self.tiles[x][y].block_sight = True
 						self.tiles[x][y].region = 0
 						done = False
-			if emergency == 0:
+					if x-1 > 0 and y-1 > 0:
+						da_sum = to_remove[x][y]+to_remove[x-1][y]+to_remove[x][y-1]+to_remove[x-1][y-1]
+						#if emergency == 100 :print(to_remove[x][y],to_remove[x-1][y],to_remove[x][y-1],to_remove[x-1][y-1], da_sum)
+						if da_sum > 5:
+							if self.tiles[x][y].blocked == False and self.tiles[x-1][y].blocked == False and self.tiles[x][y-1].blocked == False and self.tiles[x-1][y-1].blocked == False:
+								self.tiles[x][y].blocked = True
+								self.tiles[x][y].block_sight = True
+								self.tiles[x][y].region = 0
+								self.tiles[x-1][y].blocked = True
+								self.tiles[x-1][y].block_sight = True
+								self.tiles[x-1][y].region = 0
+								self.tiles[x][y-1].blocked = True
+								self.tiles[x][y-1].block_sight = True
+								self.tiles[x][y-1].region = 0
+								self.tiles[x-1][y-1].blocked = True
+								self.tiles[x-1][y-1].block_sight = True
+								self.tiles[x-1][y-1].region = 0
+								done = False
+								#print('REACHED')
+			if emergency <= 0:
 				print("WARN: EMERGENCY ESCAPE REACHED IN REMOVE DEAD ENDS")
 				done = True
 			emergency -= 1
@@ -267,8 +302,8 @@ class GameMap:
 		self.carve(pos[0], pos[1])
 
 	def can_carve(self, pos, dire, map_width, map_height):
-		x = pos[0]+dire[0]*3 # If east and pos is (1, 1) then 
-		y = pos[1]+dire[1]*3 # x, y = 4, 1
+		x = pos[0]+dire[0] # If east and pos is (1, 1) then 
+		y = pos[1]+dire[1] # x, y = 4, 1
 
 		if not (0 < x < map_width) or not (0 < y < map_height):
 			return False
