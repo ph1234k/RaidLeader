@@ -101,8 +101,8 @@ class GameMap:
 		self.connect_regions(map_width, map_height)
 		self.remove_dead_ends(map_width, map_height)
 		if not self.is_path_to(player, down_stairs, entities):
-			return False
 			entities.remove(down_stairs)
+			return False
 		else:
 			return True
 
